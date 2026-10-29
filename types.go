@@ -43,10 +43,9 @@ type App struct {
 	Miget     Resource       `json:"miget"`
 	Region    Region         `json:"region"`
 	Addons    []Addon        `json:"addons"`
-	// Cronjobs holds the app's scheduled cron jobs. The spec declares the
-	// array items as the Addon entity, but the data is cron jobs; the
-	// Cronjob type is used here.
-	Cronjobs []Cronjob `json:"cronjobs"`
+	// Cronjobs holds the app's scheduled cron jobs, rendered by the server
+	// as Addon entities; the schedule is in Settings.
+	Cronjobs []Addon `json:"cronjobs"`
 
 	HealthChecks              *AppHealthChecks   `json:"health_checks"`
 	ScalingProfile            *AppScalingProfile `json:"scaling_profile"`
@@ -467,6 +466,22 @@ type Service struct {
 	BackupEnabled   *bool          `json:"backup_enabled"`
 	ScheduledBackup *string        `json:"scheduled_backup"`
 	State           string         `json:"state"`
+
+	Role             string         `json:"role"`
+	PrimaryAddonUUID *string        `json:"primary_addon_uuid"`
+	Replicas         []Service      `json:"replicas"`
+	Addons           []ServiceAddon `json:"addons"`
+}
+
+type ServiceAddon struct {
+	UUID      string         `json:"uuid"`
+	Name      string         `json:"name"`
+	Label     string         `json:"label"`
+	State     string         `json:"state"`
+	Settings  map[string]any `json:"settings"`
+	IsReplica bool           `json:"is_replica"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 type ServiceMount struct {

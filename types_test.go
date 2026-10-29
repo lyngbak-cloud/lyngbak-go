@@ -198,3 +198,28 @@ func TestDeploymentCronjobBackupDecode(t *testing.T) {
 		t.Errorf("backup = %+v", bk)
 	}
 }
+
+func TestAppCronjobsAreAddonShaped(t *testing.T) {
+	raw := `{"uuid":"app-1","cronjobs":[{"uuid":"cj-1","name":"cron-1","type":"cronjob","label":"live","state":"active","quota":{"cpu_size":0.1},"settings":{"schedule_type":"interval","interval_type":"hourly","minute":"0","hour":"","command":"echo live","cron_expression":"0 * * * *"},"var":null,"connection_details":{},"ram_size":64,"disk_size":0,"cpu_size":0.1,"service_id":null,"created_at":"2026-01-02T03:04:05Z","updated_at":"2026-01-02T03:04:05Z"}]}`
+	var app App
+	if err := json.Unmarshal([]byte(raw), &app); err != nil {
+		t.Fatal(err)
+	}
+	if len(app.Cronjobs) != 1 || app.Cronjobs[0].UUID != "cj-1" || app.Cronjobs[0].Type != "cronjob" || app.Cronjobs[0].Settings["command"] != "echo live" || app.Cronjobs[0].CPUSize != 0.1 {
+		t.Errorf("unexpected cronjobs: %+v", app.Cronjobs)
+	}
+}
+
+func TestServiceDecodesRoleReplicasAndAddons(t *testing.T) {
+	raw := `{"uuid":"svc-1","role":"primary","primary_addon_uuid":null,"replicas":[{"uuid":"svc-2","role":"replica","primary_addon_uuid":"ad-1"}],"addons":[{"uuid":"ad-1","name":"pg-1","label":"db","state":"active","is_replica":false,"settings":{"postgres_version":"16"},"created_at":"2026-01-02T03:04:05Z","updated_at":"2026-01-02T03:04:05Z"}]}`
+	var svc Service
+	if err := json.Unmarshal([]byte(raw), &svc); err != nil {
+		t.Fatal(err)
+	}
+	if svc.Role != "primary" || svc.PrimaryAddonUUID != nil || len(svc.Replicas) != 1 || svc.Replicas[0].PrimaryAddonUUID == nil || *svc.Replicas[0].PrimaryAddonUUID != "ad-1" {
+		t.Errorf("unexpected service: %+v", svc)
+	}
+	if len(svc.Addons) != 1 || svc.Addons[0].UUID != "ad-1" || svc.Addons[0].Settings["postgres_version"] != "16" || svc.Addons[0].IsReplica {
+		t.Errorf("unexpected addons: %+v", svc.Addons)
+	}
+}
