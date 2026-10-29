@@ -2,10 +2,10 @@
 
 The official Go SDK for the [Miget](https://miget.com) PaaS REST API.
 
-> Status: Generated from the published OpenAPI spec (fetched 2026-06-13); not yet validated against the live API.
+> Status: Synced to the current Miget API and verified against the live API with contract tests.
 
 - Zero third-party dependencies (standard library only)
-- Covers all 115 documented API operations
+- Covers all 206 documented API operations
 - Context-aware: every method takes a `context.Context`
 - Typed errors with `errors.As` support
 - Server-Sent Events streaming for live deployment logs
@@ -31,9 +31,13 @@ import "github.com/lyngbak-cloud/lyngbak-go"
 // Explicit token:
 client := lyngbak.New("miget_live_...")
 
-// Or from the MIGET_API_TOKEN environment variable:
+// Or from the environment:
 client, err := lyngbak.NewFromEnv()
 ```
+
+`NewFromEnv` reads `MIGET_API_TOKEN` (required), `MIGET_WORKSPACE_ID` and
+`MIGET_API_URL` (both optional). Options passed to `NewFromEnv` take
+precedence over the environment.
 
 Options:
 
@@ -57,7 +61,7 @@ fresh, err := client.Auth.RefreshToken(ctx, tokens.RefreshToken)
 ## Workspaces
 
 If your account belongs to multiple workspaces, select one with
-`lyngbak.WithWorkspaceID(...)`. Without it the API uses your default workspace.
+`lyngbak.WithWorkspaceID(...)` or the `MIGET_WORKSPACE_ID` variable. Without it the API uses your default workspace.
 
 ## Quickstart
 
@@ -165,6 +169,23 @@ if err != nil {
 }
 ```
 
+`Resources.Create` and `Resources.Update` can respond with a payment step
+instead of a resource. These are returned as typed errors:
+
+```go
+res, err := client.Resources.Create(ctx, req)
+var checkout *lyngbak.CheckoutRequiredError
+var pending *lyngbak.PaymentPendingError
+switch {
+case errors.As(err, &checkout):
+    fmt.Println("complete payment at", checkout.CheckoutURL)
+case errors.As(err, &pending):
+    fmt.Println("payment pending, order", pending.OrderID)
+case err != nil:
+    return err
+}
+```
+
 ## Deployment logs
 
 Stored logs (plain text):
@@ -230,10 +251,35 @@ Optional string fields use `omitempty`; an empty string is not sent.
 | `client.Regions` | `List` |
 | `client.Components` | `List` |
 | `client.RegistryCredentials` | `List`, `Create`, `Get`, `Update`, `Delete` |
+| `client.SecretFiles` | `List`, `Create`, `Get`, `Update`, `Delete` |
+| `client.ProjectSecretFiles` | `List`, `Create`, `Get`, `Update`, `Delete` |
+| `client.GitCredentials` | `List`, `Get` |
+| `client.StaticSites` | `List`, `Create`, `Get`, `Update`, `Delete`, `UpdateDeployment`, `Deploy`, `ListDeployments`, `CancelDeployment`, `RollbackDeployment`, `ListFiles`, `ListDomains`, `CreateDomain`, `GetDomain`, `UpdateDomain`, `DeleteDomain`, `VerifyDomain` |
+| `client.PreviewEnvironments` | `GetConfig`, `UpdateConfig`, `List`, `Get`, `Delete`, `Redeploy` |
+| `client.Stacks` | `List`, `Create`, `Analyze`, `Get`, `Update`, `Delete`, `Deploy`, `UpdateDeployment`, `ListDeployments`, `GetDeployment` |
+| `client.Webhooks` | `List`, `Create`, `Get`, `Update`, `Delete`, `Test`, `ListDeliveries`, `RetryDelivery` |
+| `client.VPCs` | `List`, `Create`, `Get`, `Update`, `Delete`, `ListSubnets`, `CreateSubnet`, `GetSubnet`, `DeleteSubnet`, `ListAttachments`, `CreateAttachment`, `GetAttachment`, `DeleteAttachment` |
+| `client.VPN` | `ListGateways`, `CreateGateway`, `GetGateway`, `DeleteGateway`, `ListUsers`, `CreateUser`, `GetUser`, `DeleteUser`, `GetUserConfig`, `ListPeerRoutes`, `CreatePeerRoute`, `GetPeerRoute`, `DeletePeerRoute`, `ApplyPeerRoutes`, `ListSiteConnections`, `CreateSiteConnection`, `GetSiteConnection`, `DeleteSiteConnection` |
 
 Each method's doc comment carries the OpenAPI `operationId` and HTTP route,
 and `coverage_test.go` cross-checks the implementation against
-`openapi/openapi.json` (115/115 operations).
+`openapi/openapi.json` (206/206 operations).
+
+## Live tests
+
+Contract tests that exercise the real API are behind the `live` build tag and
+are skipped by default. They run only against a non-production Miget API and
+the workspace you point them at, and create and delete real resources there:
+
+```sh
+MIGET_API_URL=<non-production API base URL> \
+MIGET_API_TOKEN=<token> \
+MIGET_WORKSPACE_ID=<workspace id> \
+go test -tags live ./...
+```
+
+When `MIGET_API_URL` is not an allowed non-production URL the tests exit
+without running anything.
 
 ## License
 
