@@ -1,4 +1,4 @@
-# miget-go
+# lyngbak-go
 
 The official Go SDK for the [Miget](https://miget.com) PaaS REST API.
 
@@ -13,7 +13,7 @@ The official Go SDK for the [Miget](https://miget.com) PaaS REST API.
 ## Install
 
 ```sh
-go get github.com/migetapp/miget-go
+go get github.com/lyngbak-cloud/lyngbak-go
 ```
 
 Requires Go 1.22 or newer.
@@ -26,23 +26,23 @@ The client authenticates with a bearer token, sent as `Authorization: Bearer <to
 - Short-lived JWTs obtained from `client.Auth.SignIn`
 
 ```go
-import "github.com/migetapp/miget-go"
+import "github.com/lyngbak-cloud/lyngbak-go"
 
 // Explicit token:
-client := miget.New("miget_live_...")
+client := lyngbak.New("miget_live_...")
 
 // Or from the MIGET_API_TOKEN environment variable:
-client, err := miget.NewFromEnv()
+client, err := lyngbak.NewFromEnv()
 ```
 
 Options:
 
 ```go
-client := miget.New(token,
-    miget.WithBaseURL("https://app.miget.com"), // default
-    miget.WithWorkspaceID("ws-uuid"),           // sets X-Workspace-Id on every request
-    miget.WithHTTPClient(httpClient),           // custom *http.Client
-    miget.WithUserAgent("my-tool/1.0"),         // custom User-Agent
+client := lyngbak.New(token,
+    lyngbak.WithBaseURL("https://app.miget.com"), // default
+    lyngbak.WithWorkspaceID("ws-uuid"),           // sets X-Workspace-Id on every request
+    lyngbak.WithHTTPClient(httpClient),           // custom *http.Client
+    lyngbak.WithUserAgent("my-tool/1.0"),         // custom User-Agent
 )
 ```
 
@@ -57,7 +57,7 @@ fresh, err := client.Auth.RefreshToken(ctx, tokens.RefreshToken)
 ## Workspaces
 
 If your account belongs to multiple workspaces, select one with
-`miget.WithWorkspaceID(...)`. Without it the API uses your default workspace.
+`lyngbak.WithWorkspaceID(...)`. Without it the API uses your default workspace.
 
 ## Quickstart
 
@@ -73,18 +73,18 @@ import (
     "log"
     "time"
 
-    "github.com/migetapp/miget-go"
+    "github.com/lyngbak-cloud/lyngbak-go"
 )
 
 func main() {
     ctx := context.Background()
-    client, err := miget.NewFromEnv()
+    client, err := lyngbak.NewFromEnv()
     if err != nil {
         log.Fatal(err)
     }
 
     // 1. Provision a compute resource (a "Miget").
-    res, err := client.Resources.Create(ctx, &miget.CreateResourceRequest{
+    res, err := client.Resources.Create(ctx, &lyngbak.CreateResourceRequest{
         PlanType:     "dev",
         PlanCodeName: "starter",
         RegionCode:   "eu-central-1",
@@ -94,7 +94,7 @@ func main() {
     }
 
     // 2. Create a project.
-    project, err := client.Projects.Create(ctx, &miget.CreateProjectRequest{
+    project, err := client.Projects.Create(ctx, &lyngbak.CreateProjectRequest{
         Name: "demo",
     })
     if err != nil {
@@ -102,18 +102,18 @@ func main() {
     }
 
     // 3. Create an app on the resource.
-    app, err := client.Apps.Create(ctx, &miget.CreateAppRequest{
+    app, err := client.Apps.Create(ctx, &lyngbak.CreateAppRequest{
         Label:            "Demo Web",
         Name:             "demo-web",
         ProjectID:        fmt.Sprint(project.UUID),
         ResourceID:       res.UUID,
         Builder:          "auto",
         DeploymentMethod: "container_registry",
-        DeploymentConfig: &miget.AppDeploymentConfig{
+        DeploymentConfig: &lyngbak.AppDeploymentConfig{
             ImageURL: "docker.io/library/nginx",
             Tag:      "latest",
         },
-        AppVars: []miget.AppVarAttribute{
+        AppVars: []lyngbak.AppVarAttribute{
             {Key: "RAILS_ENV", Value: "production"},
         },
     })
@@ -146,7 +146,7 @@ func main() {
 
 ## Error handling
 
-Every non-2xx response is returned as a `*miget.APIError` carrying the HTTP
+Every non-2xx response is returned as a `*lyngbak.APIError` carrying the HTTP
 status code and the parsed error payload. Both error body shapes used by the
 API (`{"error": "..."}` and `{"errors": [...]}`) are parsed; unparseable
 bodies are preserved raw.
@@ -154,10 +154,10 @@ bodies are preserved raw.
 ```go
 app, err := client.Apps.Get(ctx, uuid)
 if err != nil {
-    if miget.IsNotFound(err) {
+    if lyngbak.IsNotFound(err) {
         // 404: app does not exist
     }
-    var apiErr *miget.APIError
+    var apiErr *lyngbak.APIError
     if errors.As(err, &apiErr) {
         fmt.Println(apiErr.StatusCode, apiErr.Message, apiErr.Errors)
     }
@@ -194,12 +194,12 @@ long-lived streams; prefer context deadlines.
 ## Optional fields
 
 Optional boolean and numeric request fields are pointers so that `false`/`0`
-can be sent explicitly. Use the `miget.Ptr` helper:
+can be sent explicitly. Use the `lyngbak.Ptr` helper:
 
 ```go
-_, err := client.Apps.Update(ctx, uuid, &miget.UpdateAppRequest{
-    Maintenance: miget.Ptr(true),
-    RAMSize:     miget.Ptr(512.0),
+_, err := client.Apps.Update(ctx, uuid, &lyngbak.UpdateAppRequest{
+    Maintenance: lyngbak.Ptr(true),
+    RAMSize:     lyngbak.Ptr(512.0),
 })
 ```
 

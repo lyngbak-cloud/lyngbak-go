@@ -1,4 +1,4 @@
-package miget
+package lyngbak
 
 import (
 	"encoding/json"
@@ -50,7 +50,7 @@ func (e *APIError) Error() string {
 			detail = http.StatusText(e.StatusCode)
 		}
 	}
-	return fmt.Sprintf("miget: API error %d: %s", e.StatusCode, detail)
+	return fmt.Sprintf("lyngbak: API error %d: %s", e.StatusCode, detail)
 }
 
 // newAPIError builds an APIError from a response status code and body.

@@ -1,4 +1,4 @@
-package miget
+package lyngbak
 
 import (
 	"context"
@@ -59,7 +59,7 @@ func TestWorkspaceHeaderAbsentByDefault(t *testing.T) {
 
 func TestUserAgent(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		want := "miget-go/" + Version
+		want := "lyngbak-go/" + Version
 		if got := r.Header.Get("User-Agent"); got != want {
 			t.Errorf("User-Agent = %q, want %q", got, want)
 		}
@@ -242,5 +242,30 @@ func TestPtr(t *testing.T) {
 	}
 	if v := Ptr(2.5); *v != 2.5 {
 		t.Error("Ptr(2.5) mismatch")
+	}
+}
+
+func TestWithBaseURLStripsAPIPrefix(t *testing.T) {
+	for _, in := range []string{"https://dev.miget.com/api/v1", "https://dev.miget.com/api/v1/", "https://dev.miget.com"} {
+		if got := New("t", WithBaseURL(in)).baseURL; got != "https://dev.miget.com" {
+			t.Errorf("WithBaseURL(%q) base = %q", in, got)
+		}
+	}
+}
+
+func TestNewFromEnvReadsWorkspaceAndURL(t *testing.T) {
+	t.Setenv("MIGET_API_TOKEN", "tok")
+	t.Setenv("MIGET_WORKSPACE_ID", "ws-1")
+	t.Setenv("MIGET_API_URL", "https://dev.miget.com/api/v1")
+	c, err := NewFromEnv()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.workspaceID != "ws-1" || c.baseURL != "https://dev.miget.com" {
+		t.Errorf("workspace %q base %q", c.workspaceID, c.baseURL)
+	}
+	c, _ = NewFromEnv(WithWorkspaceID("ws-2"))
+	if c.workspaceID != "ws-2" {
+		t.Errorf("explicit option lost: %q", c.workspaceID)
 	}
 }

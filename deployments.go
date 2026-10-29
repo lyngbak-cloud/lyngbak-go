@@ -1,4 +1,4 @@
-package miget
+package lyngbak
 
 import (
 	"bufio"

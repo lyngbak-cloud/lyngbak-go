@@ -1,3 +1,3 @@
-module github.com/migetapp/miget-go
+module github.com/lyngbak-cloud/lyngbak-go
 
 go 1.22
