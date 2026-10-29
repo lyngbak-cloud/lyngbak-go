@@ -26,8 +26,8 @@ var sdkRoutes = []sdkRoute{
 		_, err := c.Vars.SetProjectVariablesEnabled(ctx, "p1", true)
 		return err
 	}},
-	{method: "GET", path: "/api/v1/apps/{uuid}/cronjobs/{id}/stream_logs", params: []string{"p1", "2"}, call: func(ctx context.Context, c *Client) error {
-		return c.Cronjobs.StreamLogs(ctx, "p1", 2, func(LogEvent) error { return nil })
+	{method: "GET", path: "/api/v1/apps/{uuid}/cronjobs/{id}/stream_logs", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.Cronjobs.StreamLogs(ctx, "p1", "p2", func(LogEvent) error { return nil })
 	}},
 	{method: "POST", path: "/api/v1/projects/{project_id}/resources", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
 		_, err := c.Projects.AssignResource(ctx, "p1", "p2")

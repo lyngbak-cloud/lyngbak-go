@@ -70,7 +70,7 @@ func (s *CronjobsService) Delete(ctx context.Context, appUUID, cronjobID string)
 	return s.client.do(ctx, http.MethodDelete, path, nil, nil, nil)
 }
 
-func (s *CronjobsService) StreamLogs(ctx context.Context, appUUID string, id int64, fn func(LogEvent) error) error {
-	path := fmt.Sprintf("/api/v1/apps/%s/cronjobs/%d/stream_logs", url.PathEscape(appUUID), id)
+func (s *CronjobsService) StreamLogs(ctx context.Context, appUUID, cronjobID string, fn func(LogEvent) error) error {
+	path := fmt.Sprintf("/api/v1/apps/%s/cronjobs/%s/stream_logs", url.PathEscape(appUUID), url.PathEscape(cronjobID))
 	return s.client.streamSSE(ctx, path, fn)
 }
