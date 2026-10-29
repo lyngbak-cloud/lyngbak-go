@@ -126,7 +126,7 @@ func walkModeled(t *testing.T, path string, raw json.RawMessage, typ reflect.Typ
 		}
 		obj := jsonKeys(raw)
 		if obj == nil {
-			t.Errorf("%s: expected object, got %.20s", path, trimmed)
+			t.Errorf("%s: expected object, got %s", path, jsonShape(raw))
 			return
 		}
 		declared := map[string]bool{}
@@ -208,8 +208,17 @@ func cleanupDelete(t *testing.T, what string, fn func() error) {
 		for attempt := 0; attempt < 12; attempt++ {
 			err = fn()
 			var apiErr *APIError
-			if err == nil || (errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound) {
+			if err == nil {
 				return
+			}
+			if errors.As(err, &apiErr) {
+				code := apiErr.StatusCode
+				if code == http.StatusNotFound {
+					return
+				}
+				if code < 500 && code != http.StatusConflict && code != http.StatusUnprocessableEntity {
+					break
+				}
 			}
 			time.Sleep(10 * time.Second)
 		}
@@ -281,6 +290,9 @@ func TestLive(t *testing.T) {
 				regionID = r.ID
 			}
 		}
+		if len(regions) == 0 {
+			t.Fatal("regions list is empty")
+		}
 		if regionID == 0 {
 			t.Fatal("region eu-east-1 not found")
 		}
@@ -296,9 +308,10 @@ func TestLive(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if len(components) > 0 {
-			assertModeled(t, firstElement(t, liveRaw(t, c, http.MethodGet, "/api/v1/components", nil)), Component{})
+		if len(components) == 0 {
+			t.Fatal("components list is empty")
 		}
+		assertModeled(t, firstElement(t, liveRaw(t, c, http.MethodGet, "/api/v1/components", nil)), Component{})
 
 		creds, err := c.GitCredentials.List(ctx)
 		var apiErr *APIError
@@ -306,7 +319,9 @@ func TestLive(t *testing.T) {
 			t.Logf("git credentials not readable with this token (403)")
 		} else if err != nil {
 			t.Fatal(err)
-		} else if len(creds) > 0 {
+		} else if len(creds) == 0 {
+			t.Skip("no git credentials in the dev workspace; GitCredential not checked")
+		} else {
 			assertModeled(t, firstElement(t, liveRaw(t, c, http.MethodGet, "/api/v1/git_credentials", nil)), GitCredential{})
 		}
 	})
@@ -327,6 +342,7 @@ func TestLive(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		snapshot := time.Now()
 		known := map[string]bool{}
 		for _, r := range before {
 			known[r.UUID] = true
@@ -339,19 +355,32 @@ func TestLive(t *testing.T) {
 			t.Fatal("dev workspace needs a saved payment method for the paid plan")
 		case errors.As(err, &pending):
 			t.Logf("create returned payment pending; locating the new resource by listing")
-			waitFor(t, "pending resource to appear", 2*time.Minute, 5*time.Second, func() (bool, error) {
+			var found string
+			deadline := time.Now().Add(2 * time.Minute)
+			for {
 				now, err := c.Resources.List(ctx)
 				if err != nil {
-					return false, err
+					t.Fatal(err)
 				}
+				var matches []string
 				for _, x := range now {
-					if !known[x.UUID] {
-						resourceID = x.UUID
-						return true, nil
+					if !known[x.UUID] && x.Plan.CodeName == "hobby-1c-1g" && x.RegionCode == "eu-east-1" && x.CreatedAt.After(snapshot) {
+						matches = append(matches, x.UUID)
 					}
 				}
-				return false, nil
-			})
+				if len(matches) > 1 {
+					t.Fatalf("%d resources match the pending order; refusing to adopt any", len(matches))
+				}
+				if len(matches) == 1 {
+					found = matches[0]
+					break
+				}
+				if time.Now().After(deadline) {
+					t.Fatal("no resource matching the pending order appeared; nothing adopted")
+				}
+				time.Sleep(5 * time.Second)
+			}
+			resourceID = found
 		case err != nil:
 			t.Fatal(err)
 		default:
@@ -421,10 +450,10 @@ func TestLive(t *testing.T) {
 		raw := liveRaw(t, c, http.MethodGet, "/api/v1/apps/"+appUUID, nil)
 		assertModeled(t, raw, App{}, ".deployment_config.")
 		if got.HealthChecks == nil || got.HealthChecks.LivenessProbePath == nil || *got.HealthChecks.LivenessProbePath != "/healthz" {
-			t.Errorf("health check path not read back: %+v", got.HealthChecks)
+			t.Errorf("health check path not read back (health_checks present: %v)", got.HealthChecks != nil)
 		}
 		if got.ScalingProfile == nil || got.ScalingProfile.Replicas != 1 || got.ScalingProfile.AutoScalingEnabled {
-			t.Errorf("scaling profile not read back: %+v", got.ScalingProfile)
+			t.Errorf("scaling profile not read back (present: %v)", got.ScalingProfile != nil)
 		}
 		if !got.BasicAuthEnabled || got.BasicAuthUsername == nil || *got.BasicAuthUsername != "live" {
 			t.Errorf("basic auth not read back")
@@ -500,8 +529,11 @@ func TestLive(t *testing.T) {
 		cleanupDelete(top, "app secret file", func() error { return c.SecretFiles.Delete(ctx, appUUID, sf.Name) })
 		assertModeled(t, liveRaw(t, c, http.MethodGet, "/api/v1/apps/"+appUUID+"/secret_files/"+sf.Name, nil), SecretFile{})
 		got, err := c.SecretFiles.Get(ctx, appUUID, sf.Name)
-		if err != nil || got.Filename != "/app/config/live.json" {
-			t.Fatalf("get: %v %+v", err, got)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got.Filename != "/app/config/live.json" {
+			t.Fatalf("secret file filename = %q", got.Filename)
 		}
 		if _, err := c.SecretFiles.Update(ctx, appUUID, sf.Name, &SecretFileRequest{Text: "two"}); err != nil {
 			t.Fatal(err)
