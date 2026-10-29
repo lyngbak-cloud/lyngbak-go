@@ -733,27 +733,74 @@ var sdkRoutes = []sdkRoute{
 	{method: "DELETE", path: "/api/v1/vpcs/{uuid}/attachments/{attachment_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
 		return c.VPCs.DeleteAttachment(ctx, "p1", "p2")
 	}},
-}
-
-var pendingRoutes = map[string]bool{
-	"DELETE /api/v1/vpcs/{uuid}/peer_routes/{route_uuid}":           true,
-	"DELETE /api/v1/vpcs/{uuid}/site_connections/{connection_uuid}": true,
-	"DELETE /api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}":        true,
-	"DELETE /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}":              true,
-	"GET /api/v1/vpcs/{uuid}/peer_routes":                           true,
-	"GET /api/v1/vpcs/{uuid}/peer_routes/{route_uuid}":              true,
-	"GET /api/v1/vpcs/{uuid}/site_connections":                      true,
-	"GET /api/v1/vpcs/{uuid}/site_connections/{connection_uuid}":    true,
-	"GET /api/v1/vpcs/{uuid}/vpn_gateways":                          true,
-	"GET /api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}":           true,
-	"GET /api/v1/vpcs/{uuid}/vpn_users":                             true,
-	"GET /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}":                 true,
-	"GET /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}/config":          true,
-	"POST /api/v1/vpcs/{uuid}/peer_routes":                          true,
-	"POST /api/v1/vpcs/{uuid}/peer_routes/apply":                    true,
-	"POST /api/v1/vpcs/{uuid}/site_connections":                     true,
-	"POST /api/v1/vpcs/{uuid}/vpn_gateways":                         true,
-	"POST /api/v1/vpcs/{uuid}/vpn_users":                            true,
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/vpn_gateways", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.ListGateways(ctx, "p1")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/vpcs/{uuid}/vpn_gateways", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.CreateGateway(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.GetGateway(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.VPN.DeleteGateway(ctx, "p1", "p2")
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/vpn_users", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.ListUsers(ctx, "p1")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/vpcs/{uuid}/vpn_users", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.CreateUser(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/vpn_users/{user_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.GetUser(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/vpcs/{uuid}/vpn_users/{user_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.VPN.DeleteUser(ctx, "p1", "p2")
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/vpn_users/{user_uuid}/config", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.GetUserConfig(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/peer_routes", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.ListPeerRoutes(ctx, "p1")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/vpcs/{uuid}/peer_routes", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.CreatePeerRoute(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/peer_routes/{route_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.GetPeerRoute(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/vpcs/{uuid}/peer_routes/{route_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.VPN.DeletePeerRoute(ctx, "p1", "p2")
+	}},
+	{method: "POST", path: "/api/v1/vpcs/{uuid}/peer_routes/apply", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.ApplyPeerRoutes(ctx, "p1")
+		return err
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/site_connections", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.ListSiteConnections(ctx, "p1")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/vpcs/{uuid}/site_connections", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.CreateSiteConnection(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/site_connections/{connection_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPN.GetSiteConnection(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/vpcs/{uuid}/site_connections/{connection_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.VPN.DeleteSiteConnection(ctx, "p1", "p2")
+	}},
 }
 
 func specRouteKeys(t *testing.T) map[string]bool {
@@ -795,18 +842,10 @@ func TestRouteTableMatchesSpec(t *testing.T) {
 		if !spec[key] {
 			t.Errorf("sdk route %s is not in the spec", key)
 		}
-		if pendingRoutes[key] {
-			t.Errorf("%s is both implemented and pending", key)
-		}
-	}
-	for key := range pendingRoutes {
-		if !spec[key] {
-			t.Errorf("pending route %s is not in the spec", key)
-		}
 	}
 	for key := range spec {
-		if !seen[key] && !pendingRoutes[key] {
-			t.Errorf("spec route %s is neither implemented nor pending", key)
+		if !seen[key] {
+			t.Errorf("spec route %s is not implemented", key)
 		}
 	}
 }

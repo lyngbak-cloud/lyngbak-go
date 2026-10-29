@@ -78,6 +78,7 @@ type Client struct {
 	Stacks              *StacksService
 	Webhooks            *WebhooksService
 	VPCs                *VPCsService
+	VPN                 *VPNService
 }
 
 // Option configures a Client.
@@ -156,6 +157,7 @@ func New(token string, opts ...Option) *Client {
 	c.Stacks = &StacksService{client: c}
 	c.Webhooks = &WebhooksService{client: c}
 	c.VPCs = &VPCsService{client: c}
+	c.VPN = &VPNService{client: c}
 	c.PreviewEnvironments = &PreviewEnvironmentsService{client: c}
 	return c
 }
