@@ -156,3 +156,30 @@ func TestSSEData(t *testing.T) {
 		}
 	}
 }
+
+func TestCronjobStreamLogsEventResets(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/apps/app-1/cronjobs/cj-1/stream_logs" {
+			t.Errorf("path = %s", r.URL.Path)
+		}
+		w.Header().Set("Content-Type", "text/event-stream")
+		fmt.Fprint(w, "event: cron-log\ndata: first\ndata: second\n\ndata: third\n")
+	})
+	var got []LogEvent
+	err := client.Cronjobs.StreamLogs(context.Background(), "app-1", "cj-1", func(e LogEvent) error {
+		got = append(got, e)
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []LogEvent{{Event: "cron-log", Data: "first"}, {Event: "cron-log", Data: "second"}, {Event: "", Data: "third"}}
+	if len(got) != len(want) {
+		t.Fatalf("events = %+v, want %+v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("event[%d] = %+v, want %+v", i, got[i], want[i])
+		}
+	}
+}

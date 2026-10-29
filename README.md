@@ -224,7 +224,9 @@ _, err := client.Apps.Update(ctx, uuid, &lyngbak.UpdateAppRequest{
 })
 ```
 
-Optional string fields use `omitempty`; an empty string is not sent.
+Optional string fields use `omitempty`; an empty string is not sent. String
+fields the server lets you clear (for example `UpdateProjectRequest.Description`)
+are `*string`, so `lyngbak.Ptr("")` sends an empty string.
 
 ## Services and methods
 
@@ -261,17 +263,18 @@ Optional string fields use `omitempty`; an empty string is not sent.
 | `client.VPCs` | `List`, `Create`, `Get`, `Update`, `Delete`, `ListSubnets`, `CreateSubnet`, `GetSubnet`, `DeleteSubnet`, `ListAttachments`, `CreateAttachment`, `GetAttachment`, `DeleteAttachment` |
 | `client.VPN` | `ListGateways`, `CreateGateway`, `GetGateway`, `DeleteGateway`, `ListUsers`, `CreateUser`, `GetUser`, `DeleteUser`, `GetUserConfig`, `ListPeerRoutes`, `CreatePeerRoute`, `GetPeerRoute`, `DeletePeerRoute`, `ApplyPeerRoutes`, `ListSiteConnections`, `CreateSiteConnection`, `GetSiteConnection`, `DeleteSiteConnection` |
 
-Each method's doc comment carries the OpenAPI `operationId` and HTTP route,
-and `coverage_test.go` cross-checks the implementation against
-`openapi/openapi.json` (206/206 operations).
+`routes_test.go` checks that all 206 routes in `openapi/openapi.json` are
+implemented and that each SDK method calls the exact HTTP method and path.
 
 ## Live tests
 
 Contract tests that exercise the real API are behind the `live` build tag and
-are skipped by default. They run only against a non-production Miget API and
+are skipped unless `MIGET_LIVE=1` is set. They run only against a
+non-production Miget API (the production host `app.miget.com` is refused) and
 the workspace you point them at, and create and delete real resources there:
 
 ```sh
+MIGET_LIVE=1 \
 MIGET_API_URL=<non-production API base URL> \
 MIGET_API_TOKEN=<token> \
 MIGET_WORKSPACE_ID=<workspace id> \

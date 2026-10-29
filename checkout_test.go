@@ -66,3 +66,20 @@ func TestCreateResourceReturnsResource(t *testing.T) {
 		t.Errorf("res = %+v, want UUID r-1", res)
 	}
 }
+
+func TestResourceEmptyUUIDIsError(t *testing.T) {
+	for name, body := range map[string]string{"empty object": `{}`, "message only": `{"message":"ok"}`} {
+		client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusCreated)
+			fmt.Fprint(w, body)
+		})
+		res, err := client.Resources.Create(context.Background(), &CreateResourceRequest{PlanType: "dev"})
+		if err == nil || res != nil {
+			t.Errorf("%s: Create res=%+v err=%v, want error", name, res, err)
+		}
+		res, err = client.Resources.Update(context.Background(), "r-1", &UpdateResourceRequest{})
+		if err == nil || res != nil {
+			t.Errorf("%s: Update res=%+v err=%v, want error", name, res, err)
+		}
+	}
+}

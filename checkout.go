@@ -2,6 +2,7 @@ package lyngbak
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -43,6 +44,9 @@ func decodeResourceOrPayment(raw json.RawMessage) (*Resource, error) {
 		if probe.OrderID != "" {
 			return nil, &PaymentPendingError{Message: probe.Message, OrderID: probe.OrderID}
 		}
+	}
+	if probe.UUID == "" {
+		return nil, errors.New("lyngbak: response contained no resource")
 	}
 	out := new(Resource)
 	if err := json.Unmarshal(raw, out); err != nil {

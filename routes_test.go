@@ -188,7 +188,7 @@ var sdkRoutes = []sdkRoute{
 		return c.Cronjobs.StreamLogs(ctx, "p1", "p2", func(LogEvent) error { return nil })
 	}},
 	{method: "POST", path: "/api/v1/projects/{project_id}/resources", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
-		_, err := c.Projects.AssignResource(ctx, "p1", "p2")
+		_, err := c.Projects.AssignResource(ctx, "p1", &AssignProjectResourceRequest{ResourceID: "p2"})
 		return err
 	}},
 	{method: "DELETE", path: "/api/v1/projects/{project_id}/resources/{resource_id}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {

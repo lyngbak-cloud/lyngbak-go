@@ -72,16 +72,16 @@ type UpdateStaticSiteRequest struct {
 }
 
 type UpdateStaticSiteDeploymentRequest struct {
-	CredentialID      string `json:"credential_id,omitempty"`
-	Repository        string `json:"repository,omitempty"`
-	Branch            string `json:"branch,omitempty"`
-	AutoDeployEnabled *bool  `json:"auto_deploy_enabled,omitempty"`
-	AutoDeployBranch  string `json:"auto_deploy_branch,omitempty"`
-	Generator         string `json:"generator,omitempty"`
-	BuildCommand      string `json:"build_command,omitempty"`
-	OutputDir         string `json:"output_dir,omitempty"`
-	ProjectPath       string `json:"project_path,omitempty"`
-	SPAMode           *bool  `json:"spa_mode,omitempty"`
+	CredentialID      string  `json:"credential_id,omitempty"`
+	Repository        string  `json:"repository,omitempty"`
+	Branch            string  `json:"branch,omitempty"`
+	AutoDeployEnabled *bool   `json:"auto_deploy_enabled,omitempty"`
+	AutoDeployBranch  *string `json:"auto_deploy_branch,omitempty"`
+	Generator         string  `json:"generator,omitempty"`
+	BuildCommand      *string `json:"build_command,omitempty"`
+	OutputDir         *string `json:"output_dir,omitempty"`
+	ProjectPath       *string `json:"project_path,omitempty"`
+	SPAMode           *bool   `json:"spa_mode,omitempty"`
 }
 
 type DeployStaticSiteRequest struct {
@@ -120,9 +120,9 @@ type UpdatePreviewEnvironmentConfigRequest struct {
 	ProjectID             *string        `json:"project_id,omitempty"`
 	TriggerMode           string         `json:"trigger_mode,omitempty"`
 	TriggerFilter         string         `json:"trigger_filter,omitempty"`
-	TriggerLabel          string         `json:"trigger_label,omitempty"`
-	BranchPattern         string         `json:"branch_pattern,omitempty"`
-	PRNamePattern         string         `json:"pr_name_pattern,omitempty"`
+	TriggerLabel          *string        `json:"trigger_label,omitempty"`
+	BranchPattern         *string        `json:"branch_pattern,omitempty"`
+	PRNamePattern         *string        `json:"pr_name_pattern,omitempty"`
 	AutoDeployOnPush      *bool          `json:"auto_deploy_on_push,omitempty"`
 	CleanupOnPRMerge      *bool          `json:"cleanup_on_pr_merge,omitempty"`
 	CleanupOnPRClose      *bool          `json:"cleanup_on_pr_close,omitempty"`

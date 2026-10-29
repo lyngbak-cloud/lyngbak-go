@@ -14,7 +14,7 @@ func TestStackRepositoryURL(t *testing.T) {
 		t.Fatal(err)
 	}
 	cfg := stack.DeploymentConfig
-	if cfg == nil || cfg.Type != "github" || cfg.RepositoryURL != "https://github.com/acme/shop" || cfg.Repository == nil || *cfg.Repository != "acme/shop" {
+	if cfg == nil || cfg.Type != "github" || cfg.RepositoryURL == nil || *cfg.RepositoryURL != "https://github.com/acme/shop" || cfg.Repository == nil || *cfg.Repository != "acme/shop" {
 		t.Errorf("unexpected config: %+v", cfg)
 	}
 	if stack.ProjectID != nil || stack.LatestDeployment != nil || len(stack.Services) != 1 || stack.Services[0].ItemName == nil {
@@ -30,7 +30,7 @@ func TestStackPublicGitConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 	cfg := stacks[0].DeploymentConfig
-	if cfg.Type != "public_git" || cfg.Repository != nil || cfg.AutoDeployEnabled != nil || cfg.CredentialID != nil || cfg.RepositoryURL != "https://git.example.com/acme/shop.git" {
+	if cfg.Type != "public_git" || cfg.Repository != nil || cfg.AutoDeployEnabled != nil || cfg.CredentialID != nil || cfg.RepositoryURL == nil || *cfg.RepositoryURL != "https://git.example.com/acme/shop.git" {
 		t.Errorf("unexpected config: %+v", cfg)
 	}
 }

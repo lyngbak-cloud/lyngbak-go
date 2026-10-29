@@ -246,8 +246,8 @@ func TestPtr(t *testing.T) {
 }
 
 func TestWithBaseURLStripsAPIPrefix(t *testing.T) {
-	for _, in := range []string{"https://dev.miget.com/api/v1", "https://dev.miget.com/api/v1/", "https://dev.miget.com"} {
-		if got := New("t", WithBaseURL(in)).baseURL; got != "https://dev.miget.com" {
+	for _, in := range []string{"https://api.example.test/api/v1", "https://api.example.test/api/v1/", "https://api.example.test"} {
+		if got := New("t", WithBaseURL(in)).baseURL; got != "https://api.example.test" {
 			t.Errorf("WithBaseURL(%q) base = %q", in, got)
 		}
 	}
@@ -256,12 +256,12 @@ func TestWithBaseURLStripsAPIPrefix(t *testing.T) {
 func TestNewFromEnvReadsWorkspaceAndURL(t *testing.T) {
 	t.Setenv("MIGET_API_TOKEN", "tok")
 	t.Setenv("MIGET_WORKSPACE_ID", "ws-1")
-	t.Setenv("MIGET_API_URL", "https://dev.miget.com/api/v1")
+	t.Setenv("MIGET_API_URL", "https://api.example.test/api/v1")
 	c, err := NewFromEnv()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c.workspaceID != "ws-1" || c.baseURL != "https://dev.miget.com" {
+	if c.workspaceID != "ws-1" || c.baseURL != "https://api.example.test" {
 		t.Errorf("workspace %q base %q", c.workspaceID, c.baseURL)
 	}
 	c, _ = NewFromEnv(WithWorkspaceID("ws-2"))

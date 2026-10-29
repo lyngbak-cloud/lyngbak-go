@@ -216,10 +216,80 @@ func TestServiceDecodesRoleReplicasAndAddons(t *testing.T) {
 	if err := json.Unmarshal([]byte(raw), &svc); err != nil {
 		t.Fatal(err)
 	}
-	if svc.Role != "primary" || svc.PrimaryAddonUUID != nil || len(svc.Replicas) != 1 || svc.Replicas[0].PrimaryAddonUUID == nil || *svc.Replicas[0].PrimaryAddonUUID != "ad-1" {
+	if svc.Role == nil || *svc.Role != "primary" || svc.PrimaryAddonUUID != nil || len(svc.Replicas) != 1 || svc.Replicas[0].PrimaryAddonUUID == nil || *svc.Replicas[0].PrimaryAddonUUID != "ad-1" {
 		t.Errorf("unexpected service: %+v", svc)
 	}
 	if len(svc.Addons) != 1 || svc.Addons[0].UUID != "ad-1" || svc.Addons[0].Settings["postgres_version"] != "16" || svc.Addons[0].IsReplica {
 		t.Errorf("unexpected addons: %+v", svc.Addons)
 	}
+}
+
+func marshalKeys(t *testing.T, v any) map[string]json.RawMessage {
+	t.Helper()
+	b, err := json.Marshal(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal(b, &m); err != nil {
+		t.Fatal(err)
+	}
+	return m
+}
+
+func requireKeys(t *testing.T, got map[string]json.RawMessage, want ...string) {
+	t.Helper()
+	if len(got) != len(want) {
+		t.Errorf("keys = %d, want %d: %v", len(got), len(want), got)
+	}
+	for _, k := range want {
+		if _, ok := got[k]; !ok {
+			t.Errorf("missing key %q", k)
+		}
+	}
+}
+
+func TestAppDeploymentConfigKeys(t *testing.T) {
+	s, b := "x", true
+	got := marshalKeys(t, AppDeploymentConfig{
+		RepositoryURL: s, ProjectPath: s, RunCommand: s, Language: s, BuildCommand: s,
+		PreDeployCommand: s, PostDeployCommand: s, UseDHI: &b,
+	})
+	requireKeys(t, got, "repository_url", "project_path", "run_command", "language", "build_command", "pre_deploy_command", "post_deploy_command", "use_dhi")
+}
+
+func TestUpdateAppDeploymentConfigKeys(t *testing.T) {
+	s, b := "x", true
+	got := marshalKeys(t, UpdateAppDeploymentConfig{
+		RepositoryURL: s, Repository: s, Branch: &s, AutoDeployEnabled: &b, AutoDeployBranch: &s,
+		DockerfilePath: &s, BuildContext: &s, ProjectPath: &s, RunCommand: &s, Language: &s,
+		BuildCommand: &s, PreDeployCommand: &s, PostDeployCommand: &s, UseDHI: &b,
+	})
+	requireKeys(t, got, "repository_url", "repository", "branch", "auto_deploy_enabled", "auto_deploy_branch", "dockerfile_path", "build_context", "project_path", "run_command", "language", "build_command", "pre_deploy_command", "post_deploy_command", "use_dhi")
+}
+
+func TestClearableStringsMarshalEmpty(t *testing.T) {
+	empty := Ptr("")
+	cases := map[string]struct {
+		v   any
+		key string
+	}{
+		"project description": {UpdateProjectRequest{Description: empty}, "description"},
+		"scaling start":       {UpdateAppScalingProfileRequest{ScalingStartTime: empty}, "scaling_start_time"},
+		"scaling end":         {UpdateAppScalingProfileRequest{ScalingEndTime: empty}, "scaling_end_time"},
+		"trigger label":       {UpdatePreviewEnvironmentConfigRequest{TriggerLabel: empty}, "trigger_label"},
+		"deployment branch":   {UpdateAppDeploymentConfig{Branch: empty}, "branch"},
+	}
+	for name, c := range cases {
+		got := marshalKeys(t, c.v)
+		if string(got[c.key]) != `""` {
+			t.Errorf("%s: %s = %s, want \"\"", name, c.key, got[c.key])
+		}
+	}
+	requireKeys(t, marshalKeys(t, UpdateProjectRequest{}))
+}
+
+func TestAssignProjectResourceRequestKeys(t *testing.T) {
+	requireKeys(t, marshalKeys(t, AssignProjectResourceRequest{ResourceID: "r"}), "resource_id")
+	requireKeys(t, marshalKeys(t, AssignProjectResourceRequest{ResourceID: "r", WithHostingProjects: Ptr(false)}), "resource_id", "with_hosting_projects")
 }

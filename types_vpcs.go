@@ -7,7 +7,7 @@ type VPC struct {
 	Name            string    `json:"name"`
 	Label           *string   `json:"label"`
 	Status          string    `json:"status"`
-	RegionID        int       `json:"region_id"`
+	RegionID        int64     `json:"region_id"`
 	RegionCode      string    `json:"region_code"`
 	CIDRV4          string    `json:"cidr_v4"`
 	CIDRV6          *string   `json:"cidr_v6"`
@@ -45,7 +45,7 @@ type VPCAttachment struct {
 }
 
 type CreateVPCRequest struct {
-	RegionID int    `json:"region_id"`
+	RegionID int64  `json:"region_id"`
 	Name     string `json:"name,omitempty"`
 	Label    string `json:"label,omitempty"`
 	CIDRV4   string `json:"cidr_v4,omitempty"`

@@ -2,11 +2,11 @@ package lyngbak
 
 import "time"
 
-// This file contains all request and response types, derived from the
+// This file contains request and response types, derived from the
 // components.schemas section of the OpenAPI specification
-// (openapi/openapi.json). Entity (response) types use value fields because
-// the spec marks all entity properties as required; fields the spec leaves
-// loosely typed are noted in comments.
+// (openapi/openapi.json). Entity (response) types use pointer fields for
+// values the server can return as null; fields the spec leaves loosely typed
+// are noted in comments.
 
 // ----------------------------------------------------------------------------
 // Entities (response types)
@@ -467,7 +467,7 @@ type Service struct {
 	ScheduledBackup *string        `json:"scheduled_backup"`
 	State           string         `json:"state"`
 
-	Role             string         `json:"role"`
+	Role             *string        `json:"role"`
 	PrimaryAddonUUID *string        `json:"primary_addon_uuid"`
 	Replicas         []Service      `json:"replicas"`
 	Addons           []ServiceAddon `json:"addons"`
@@ -586,7 +586,15 @@ type AppDeploymentConfig struct {
 	// Command overrides the container ENTRYPOINT (container_registry).
 	Command []string `json:"command,omitempty"`
 	// Args overrides the container CMD (container_registry).
-	Args []string `json:"args,omitempty"`
+	Args              []string `json:"args,omitempty"`
+	RepositoryURL     string   `json:"repository_url,omitempty"`
+	ProjectPath       string   `json:"project_path,omitempty"`
+	RunCommand        string   `json:"run_command,omitempty"`
+	Language          string   `json:"language,omitempty"`
+	BuildCommand      string   `json:"build_command,omitempty"`
+	PreDeployCommand  string   `json:"pre_deploy_command,omitempty"`
+	PostDeployCommand string   `json:"post_deploy_command,omitempty"`
+	UseDHI            *bool    `json:"use_dhi,omitempty"`
 }
 
 // CreateAppRequest is the body for AppsService.Create.
@@ -695,7 +703,21 @@ type UpdateAppDeploymentConfig struct {
 	// (parent_image).
 	ParentImageAutoSync *bool `json:"parent_image_auto_sync,omitempty"`
 	// SSHKeys are SSH public keys for Kamal deployment access (kamal).
-	SSHKeys []string `json:"ssh_keys,omitempty"`
+	SSHKeys           []string `json:"ssh_keys,omitempty"`
+	RepositoryURL     string   `json:"repository_url,omitempty"`
+	Repository        string   `json:"repository,omitempty"`
+	Branch            *string  `json:"branch,omitempty"`
+	AutoDeployBranch  *string  `json:"auto_deploy_branch,omitempty"`
+	DockerfilePath    *string  `json:"dockerfile_path,omitempty"`
+	BuildContext      *string  `json:"build_context,omitempty"`
+	ProjectPath       *string  `json:"project_path,omitempty"`
+	RunCommand        *string  `json:"run_command,omitempty"`
+	Language          *string  `json:"language,omitempty"`
+	BuildCommand      *string  `json:"build_command,omitempty"`
+	PreDeployCommand  *string  `json:"pre_deploy_command,omitempty"`
+	PostDeployCommand *string  `json:"post_deploy_command,omitempty"`
+	AutoDeployEnabled *bool    `json:"auto_deploy_enabled,omitempty"`
+	UseDHI            *bool    `json:"use_dhi,omitempty"`
 }
 
 // UpdateAppDeploymentRequest is the body for AppsService.UpdateDeployment.
@@ -718,9 +740,9 @@ type UpdateAppScalingProfileRequest struct {
 	AutoMinReplicas    *int64 `json:"auto_min_replicas,omitempty"`
 	AutoMaxReplicas    *int64 `json:"auto_max_replicas,omitempty"`
 	// ScalingStartTime and ScalingEndTime use HH:MM format (24-hour).
-	ScalingStartTime string `json:"scaling_start_time,omitempty"`
-	ScalingEndTime   string `json:"scaling_end_time,omitempty"`
-	WithinResources  *bool  `json:"within_resources,omitempty"`
+	ScalingStartTime *string `json:"scaling_start_time,omitempty"`
+	ScalingEndTime   *string `json:"scaling_end_time,omitempty"`
+	WithinResources  *bool   `json:"within_resources,omitempty"`
 	// CPUThreshold and MemoryThreshold are usage percentages (1-100).
 	CPUThreshold    *int64 `json:"cpu_threshold,omitempty"`
 	MemoryThreshold *int64 `json:"memory_threshold,omitempty"`
@@ -731,31 +753,31 @@ type UpdateAppScalingProfileRequest struct {
 // AppsService.UpdateHealthChecks.
 // Schema: updateAppHealthChecks.
 type UpdateAppHealthChecksRequest struct {
-	LivenessProbeEnabled                     *bool  `json:"liveness_probe_enabled,omitempty"`
-	ReadinessProbeEnabled                    *bool  `json:"readiness_probe_enabled,omitempty"`
-	StartupProbeEnabled                      *bool  `json:"startup_probe_enabled,omitempty"`
-	LivenessInAppFailureNotificationEnabled  *bool  `json:"liveness_in_app_failure_notification_enabled,omitempty"`
-	LivenessEmailFailureNotificationEnabled  *bool  `json:"liveness_email_failure_notification_enabled,omitempty"`
-	ReadinessInAppFailureNotificationEnabled *bool  `json:"readiness_in_app_failure_notification_enabled,omitempty"`
-	ReadinessEmailFailureNotificationEnabled *bool  `json:"readiness_email_failure_notification_enabled,omitempty"`
-	StartupInAppFailureNotificationEnabled   *bool  `json:"startup_in_app_failure_notification_enabled,omitempty"`
-	StartupEmailFailureNotificationEnabled   *bool  `json:"startup_email_failure_notification_enabled,omitempty"`
-	ProjectVariablesEnabled                  *bool  `json:"project_variables_enabled,omitempty"`
-	LivenessProbePath                        string `json:"liveness_probe_path,omitempty"`
-	ReadinessProbePath                       string `json:"readiness_probe_path,omitempty"`
-	StartupProbePath                         string `json:"startup_probe_path,omitempty"`
-	LivenessProbeInitialDelaySeconds         *int64 `json:"liveness_probe_initial_delay_seconds,omitempty"`
-	LivenessProbeTimeoutSeconds              *int64 `json:"liveness_probe_timeout_seconds,omitempty"`
-	LivenessProbePeriodSeconds               *int64 `json:"liveness_probe_period_seconds,omitempty"`
-	LivenessProbeFailureThreshold            *int64 `json:"liveness_probe_failure_threshold,omitempty"`
-	ReadinessProbeInitialDelaySeconds        *int64 `json:"readiness_probe_initial_delay_seconds,omitempty"`
-	ReadinessProbeTimeoutSeconds             *int64 `json:"readiness_probe_timeout_seconds,omitempty"`
-	ReadinessProbePeriodSeconds              *int64 `json:"readiness_probe_period_seconds,omitempty"`
-	ReadinessProbeFailureThreshold           *int64 `json:"readiness_probe_failure_threshold,omitempty"`
-	StartupProbeInitialDelaySeconds          *int64 `json:"startup_probe_initial_delay_seconds,omitempty"`
-	StartupProbeTimeoutSeconds               *int64 `json:"startup_probe_timeout_seconds,omitempty"`
-	StartupProbePeriodSeconds                *int64 `json:"startup_probe_period_seconds,omitempty"`
-	StartupProbeFailureThreshold             *int64 `json:"startup_probe_failure_threshold,omitempty"`
+	LivenessProbeEnabled                     *bool   `json:"liveness_probe_enabled,omitempty"`
+	ReadinessProbeEnabled                    *bool   `json:"readiness_probe_enabled,omitempty"`
+	StartupProbeEnabled                      *bool   `json:"startup_probe_enabled,omitempty"`
+	LivenessInAppFailureNotificationEnabled  *bool   `json:"liveness_in_app_failure_notification_enabled,omitempty"`
+	LivenessEmailFailureNotificationEnabled  *bool   `json:"liveness_email_failure_notification_enabled,omitempty"`
+	ReadinessInAppFailureNotificationEnabled *bool   `json:"readiness_in_app_failure_notification_enabled,omitempty"`
+	ReadinessEmailFailureNotificationEnabled *bool   `json:"readiness_email_failure_notification_enabled,omitempty"`
+	StartupInAppFailureNotificationEnabled   *bool   `json:"startup_in_app_failure_notification_enabled,omitempty"`
+	StartupEmailFailureNotificationEnabled   *bool   `json:"startup_email_failure_notification_enabled,omitempty"`
+	ProjectVariablesEnabled                  *bool   `json:"project_variables_enabled,omitempty"`
+	LivenessProbePath                        *string `json:"liveness_probe_path,omitempty"`
+	ReadinessProbePath                       *string `json:"readiness_probe_path,omitempty"`
+	StartupProbePath                         *string `json:"startup_probe_path,omitempty"`
+	LivenessProbeInitialDelaySeconds         *int64  `json:"liveness_probe_initial_delay_seconds,omitempty"`
+	LivenessProbeTimeoutSeconds              *int64  `json:"liveness_probe_timeout_seconds,omitempty"`
+	LivenessProbePeriodSeconds               *int64  `json:"liveness_probe_period_seconds,omitempty"`
+	LivenessProbeFailureThreshold            *int64  `json:"liveness_probe_failure_threshold,omitempty"`
+	ReadinessProbeInitialDelaySeconds        *int64  `json:"readiness_probe_initial_delay_seconds,omitempty"`
+	ReadinessProbeTimeoutSeconds             *int64  `json:"readiness_probe_timeout_seconds,omitempty"`
+	ReadinessProbePeriodSeconds              *int64  `json:"readiness_probe_period_seconds,omitempty"`
+	ReadinessProbeFailureThreshold           *int64  `json:"readiness_probe_failure_threshold,omitempty"`
+	StartupProbeInitialDelaySeconds          *int64  `json:"startup_probe_initial_delay_seconds,omitempty"`
+	StartupProbeTimeoutSeconds               *int64  `json:"startup_probe_timeout_seconds,omitempty"`
+	StartupProbePeriodSeconds                *int64  `json:"startup_probe_period_seconds,omitempty"`
+	StartupProbeFailureThreshold             *int64  `json:"startup_probe_failure_threshold,omitempty"`
 }
 
 // ActivityListOptions are the query parameters for AppsService.Activity.
@@ -980,11 +1002,16 @@ type CreateProjectRequest struct {
 	Description string `json:"description,omitempty"`
 }
 
+type AssignProjectResourceRequest struct {
+	ResourceID          string `json:"resource_id"`
+	WithHostingProjects *bool  `json:"with_hosting_projects,omitempty"`
+}
+
 // UpdateProjectRequest is the body for ProjectsService.Update.
 // Schema: updateProject.
 type UpdateProjectRequest struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
+	Name        string  `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 // ResourceComponentInput selects a resource component and quantity.

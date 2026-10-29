@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/netip"
+	"net/url"
 	"os"
 	"reflect"
 	"sort"
@@ -19,18 +20,24 @@ import (
 	"time"
 )
 
-const (
-	liveAPIURL = "https://dev.miget.com/api/v1"
-	livePrefix = "lyngbak-go-live-"
-)
+const livePrefix = "lyngbak-go-live-"
 
 func TestMain(m *testing.M) {
-	if os.Getenv(EnvAPIURL) != liveAPIURL {
-		fmt.Println("skipping live tests: MIGET_API_URL is not the dev API")
+	if os.Getenv("MIGET_LIVE") != "1" {
+		fmt.Println("skipping live tests: MIGET_LIVE=1 is not set")
 		os.Exit(0)
 	}
+	apiURL := os.Getenv(EnvAPIURL)
+	if apiURL == "" {
+		fmt.Fprintln(os.Stderr, "MIGET_API_URL must be set")
+		os.Exit(1)
+	}
+	if u, err := url.Parse(apiURL); err != nil || u.Hostname() == "" || u.Hostname() == "app.miget.com" {
+		fmt.Fprintln(os.Stderr, "refusing to run live tests against production or an invalid API URL")
+		os.Exit(1)
+	}
 	if os.Getenv(EnvAPIToken) == "" || os.Getenv(EnvWorkspaceID) == "" {
-		fmt.Println("MIGET_API_TOKEN and MIGET_WORKSPACE_ID must be set")
+		fmt.Fprintln(os.Stderr, "MIGET_API_TOKEN and MIGET_WORKSPACE_ID must be set")
 		os.Exit(1)
 	}
 	os.Exit(m.Run())
@@ -423,7 +430,7 @@ func TestLive(t *testing.T) {
 
 		if _, err := c.Apps.UpdateHealthChecks(ctx, appUUID, &UpdateAppHealthChecksRequest{
 			LivenessProbeEnabled:                     Ptr(true),
-			LivenessProbePath:                        "/healthz",
+			LivenessProbePath:                        Ptr("/healthz"),
 			LivenessProbeInitialDelaySeconds:         Ptr(int64(15)),
 			LivenessProbeTimeoutSeconds:              Ptr(int64(4)),
 			LivenessProbePeriodSeconds:               Ptr(int64(20)),
@@ -609,7 +616,7 @@ func TestLive(t *testing.T) {
 	})
 
 	t.Run("vpc", func(t *testing.T) {
-		vpc, err := c.VPCs.Create(ctx, &CreateVPCRequest{RegionID: int(regionID), Name: name, Label: name})
+		vpc, err := c.VPCs.Create(ctx, &CreateVPCRequest{RegionID: regionID, Name: name, Label: name})
 		if err != nil {
 			t.Fatal(err)
 		}

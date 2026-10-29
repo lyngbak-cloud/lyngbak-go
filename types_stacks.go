@@ -26,7 +26,7 @@ type Stack struct {
 type StackConfigState struct {
 	Type              string  `json:"type"`
 	Repository        *string `json:"repository"`
-	RepositoryURL     string  `json:"repository_url"`
+	RepositoryURL     *string `json:"repository_url"`
 	Branch            *string `json:"branch"`
 	AutoDeployEnabled *bool   `json:"auto_deploy_enabled"`
 	CredentialID      *string `json:"credential_id"`

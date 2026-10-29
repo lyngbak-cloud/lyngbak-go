@@ -72,13 +72,10 @@ func (s *ProjectsService) ListApps(ctx context.Context, projectID string) ([]App
 	return out, nil
 }
 
-func (s *ProjectsService) AssignResource(ctx context.Context, projectID, resourceUUID string) (*Resource, error) {
-	body := struct {
-		ResourceID string `json:"resource_id"`
-	}{ResourceID: resourceUUID}
+func (s *ProjectsService) AssignResource(ctx context.Context, projectID string, req *AssignProjectResourceRequest) (*Resource, error) {
 	out := new(Resource)
 	path := fmt.Sprintf("/api/v1/projects/%s/resources", url.PathEscape(projectID))
-	if err := s.client.do(ctx, http.MethodPost, path, nil, body, out); err != nil {
+	if err := s.client.do(ctx, http.MethodPost, path, nil, req, out); err != nil {
 		return nil, err
 	}
 	return out, nil
