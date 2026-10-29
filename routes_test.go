@@ -18,6 +18,94 @@ type sdkRoute struct {
 }
 
 var sdkRoutes = []sdkRoute{
+	{method: "GET", path: "/api/v1/static", params: []string{}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.List(ctx)
+		return err
+	}},
+	{method: "POST", path: "/api/v1/static", params: []string{}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.Create(ctx, nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/static/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.Get(ctx, "p1")
+		return err
+	}},
+	{method: "PUT", path: "/api/v1/static/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.Update(ctx, "p1", nil)
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/static/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		return c.StaticSites.Delete(ctx, "p1")
+	}},
+	{method: "PUT", path: "/api/v1/static/{uuid}/deployment", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.UpdateDeployment(ctx, "p1", nil)
+		return err
+	}},
+	{method: "POST", path: "/api/v1/static/{uuid}/deployments", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.Deploy(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/static/{uuid}/deployments", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.ListDeployments(ctx, "p1", nil)
+		return err
+	}},
+	{method: "POST", path: "/api/v1/static/{uuid}/deployments/{id}/cancel", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.CancelDeployment(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/static/{uuid}/deployments/{id}/rollback", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.RollbackDeployment(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "GET", path: "/api/v1/static/{uuid}/files", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.ListFiles(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/static/{uuid}/domains", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.ListDomains(ctx, "p1")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/static/{uuid}/domains", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.CreateDomain(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "GET", path: "/api/v1/static/{uuid}/domains/{domain_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.GetDomain(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "PUT", path: "/api/v1/static/{uuid}/domains/{domain_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.UpdateDomain(ctx, "p1", "p2", "p3")
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/static/{uuid}/domains/{domain_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.StaticSites.DeleteDomain(ctx, "p1", "p2")
+	}},
+	{method: "POST", path: "/api/v1/static/{uuid}/domains/{domain_uuid}/verify", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.StaticSites.VerifyDomain(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "GET", path: "/api/v1/apps/{uuid}/preview_environments/config", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.PreviewEnvironments.GetConfig(ctx, "p1")
+		return err
+	}},
+	{method: "PUT", path: "/api/v1/apps/{uuid}/preview_environments/config", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.PreviewEnvironments.UpdateConfig(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/apps/{uuid}/preview_environments", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.PreviewEnvironments.List(ctx, "p1", "")
+		return err
+	}},
+	{method: "GET", path: "/api/v1/apps/{uuid}/preview_environments/{id}", params: []string{"p1", "1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.PreviewEnvironments.Get(ctx, "p1", 1)
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/apps/{uuid}/preview_environments/{id}", params: []string{"p1", "1"}, call: func(ctx context.Context, c *Client) error {
+		return c.PreviewEnvironments.Delete(ctx, "p1", 1)
+	}},
+	{method: "POST", path: "/api/v1/apps/{uuid}/preview_environments/{id}/redeploy", params: []string{"p1", "1"}, call: func(ctx context.Context, c *Client) error {
+		return c.PreviewEnvironments.Redeploy(ctx, "p1", 1)
+	}},
 	{method: "PUT", path: "/api/v1/apps/{uuid}/secret_files/project_files_enabled", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
 		_, err := c.Apps.SetProjectSecretFilesEnabled(ctx, "p1", true)
 		return err
@@ -529,10 +617,7 @@ var sdkRoutes = []sdkRoute{
 }
 
 var pendingRoutes = map[string]bool{
-	"DELETE /api/v1/apps/{uuid}/preview_environments/{id}":          true,
 	"DELETE /api/v1/stacks/{uuid}":                                  true,
-	"DELETE /api/v1/static/{uuid}":                                  true,
-	"DELETE /api/v1/static/{uuid}/domains/{domain_uuid}":            true,
 	"DELETE /api/v1/vpcs/{uuid}":                                    true,
 	"DELETE /api/v1/vpcs/{uuid}/attachments/{attachment_uuid}":      true,
 	"DELETE /api/v1/vpcs/{uuid}/peer_routes/{route_uuid}":           true,
@@ -541,19 +626,10 @@ var pendingRoutes = map[string]bool{
 	"DELETE /api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}":        true,
 	"DELETE /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}":              true,
 	"DELETE /api/v1/webhooks/{uuid}":                                true,
-	"GET /api/v1/apps/{uuid}/preview_environments":                  true,
-	"GET /api/v1/apps/{uuid}/preview_environments/config":           true,
-	"GET /api/v1/apps/{uuid}/preview_environments/{id}":             true,
 	"GET /api/v1/stacks":                                            true,
 	"GET /api/v1/stacks/{uuid}":                                     true,
 	"GET /api/v1/stacks/{uuid}/deployments":                         true,
 	"GET /api/v1/stacks/{uuid}/deployments/{id}":                    true,
-	"GET /api/v1/static":                                            true,
-	"GET /api/v1/static/{uuid}":                                     true,
-	"GET /api/v1/static/{uuid}/deployments":                         true,
-	"GET /api/v1/static/{uuid}/domains":                             true,
-	"GET /api/v1/static/{uuid}/domains/{domain_uuid}":               true,
-	"GET /api/v1/static/{uuid}/files":                               true,
 	"GET /api/v1/vpcs":                                              true,
 	"GET /api/v1/vpcs/{uuid}":                                       true,
 	"GET /api/v1/vpcs/{uuid}/attachments":                           true,
@@ -572,16 +648,9 @@ var pendingRoutes = map[string]bool{
 	"GET /api/v1/webhooks":                                          true,
 	"GET /api/v1/webhooks/{uuid}":                                   true,
 	"GET /api/v1/webhooks/{uuid}/deliveries":                        true,
-	"POST /api/v1/apps/{uuid}/preview_environments/{id}/redeploy":   true,
 	"POST /api/v1/stacks":                                           true,
 	"POST /api/v1/stacks/analyze":                                   true,
 	"POST /api/v1/stacks/{uuid}/deploy":                             true,
-	"POST /api/v1/static":                                           true,
-	"POST /api/v1/static/{uuid}/deployments":                        true,
-	"POST /api/v1/static/{uuid}/deployments/{id}/cancel":            true,
-	"POST /api/v1/static/{uuid}/deployments/{id}/rollback":          true,
-	"POST /api/v1/static/{uuid}/domains":                            true,
-	"POST /api/v1/static/{uuid}/domains/{domain_uuid}/verify":       true,
 	"POST /api/v1/vpcs":                                             true,
 	"POST /api/v1/vpcs/{uuid}/attachments":                          true,
 	"POST /api/v1/vpcs/{uuid}/peer_routes":                          true,
@@ -593,12 +662,8 @@ var pendingRoutes = map[string]bool{
 	"POST /api/v1/webhooks":                                         true,
 	"POST /api/v1/webhooks/{uuid}/deliveries/{delivery_uuid}/retry": true,
 	"POST /api/v1/webhooks/{uuid}/test":                             true,
-	"PUT /api/v1/apps/{uuid}/preview_environments/config":           true,
 	"PUT /api/v1/stacks/{uuid}":                                     true,
 	"PUT /api/v1/stacks/{uuid}/deployment":                          true,
-	"PUT /api/v1/static/{uuid}":                                     true,
-	"PUT /api/v1/static/{uuid}/deployment":                          true,
-	"PUT /api/v1/static/{uuid}/domains/{domain_uuid}":               true,
 	"PUT /api/v1/vpcs/{uuid}":                                       true,
 	"PUT /api/v1/webhooks/{uuid}":                                   true,
 }

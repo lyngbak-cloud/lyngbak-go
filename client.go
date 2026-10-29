@@ -73,6 +73,8 @@ type Client struct {
 	SecretFiles         *SecretFilesService
 	ProjectSecretFiles  *ProjectSecretFilesService
 	GitCredentials      *GitCredentialsService
+	StaticSites         *StaticSitesService
+	PreviewEnvironments *PreviewEnvironmentsService
 }
 
 // Option configures a Client.
@@ -147,6 +149,8 @@ func New(token string, opts ...Option) *Client {
 	c.SecretFiles = &SecretFilesService{client: c}
 	c.ProjectSecretFiles = &ProjectSecretFilesService{client: c}
 	c.GitCredentials = &GitCredentialsService{client: c}
+	c.StaticSites = &StaticSitesService{client: c}
+	c.PreviewEnvironments = &PreviewEnvironmentsService{client: c}
 	return c
 }
 
@@ -217,7 +221,10 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 	if err != nil {
 		return err
 	}
+	return c.send(req, out)
+}
 
+func (c *Client) send(req *http.Request, out any) error {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
