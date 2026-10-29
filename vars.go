@@ -50,3 +50,15 @@ func (s *VarsService) Delete(ctx context.Context, appUUID, key string) error {
 	path := fmt.Sprintf("/api/v1/apps/%s/vars", url.PathEscape(appUUID))
 	return s.client.do(ctx, http.MethodDelete, path, query, nil, nil)
 }
+
+func (s *VarsService) SetProjectVariablesEnabled(ctx context.Context, uuid string, enabled bool) (*Message, error) {
+	body := struct {
+		Enabled bool `json:"enabled"`
+	}{Enabled: enabled}
+	out := new(Message)
+	path := fmt.Sprintf("/api/v1/apps/%s/vars/project_variables_enabled", url.PathEscape(uuid))
+	if err := s.client.do(ctx, http.MethodPut, path, nil, body, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}

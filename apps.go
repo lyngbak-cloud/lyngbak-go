@@ -171,3 +171,15 @@ func (s *AppsService) UpdateHealthChecks(ctx context.Context, uuid string, req *
 	}
 	return out, nil
 }
+
+func (s *AppsService) SetProjectSecretFilesEnabled(ctx context.Context, uuid string, enabled bool) (*Message, error) {
+	body := struct {
+		Enabled bool `json:"enabled"`
+	}{Enabled: enabled}
+	out := new(Message)
+	path := fmt.Sprintf("/api/v1/apps/%s/secret_files/project_files_enabled", url.PathEscape(uuid))
+	if err := s.client.do(ctx, http.MethodPut, path, nil, body, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}

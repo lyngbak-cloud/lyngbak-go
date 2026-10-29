@@ -61,14 +61,18 @@ func (s *DeploymentsService) Logs(ctx context.Context, appUUID, deploymentID str
 // Operation: streamAppDeploymentLogs (GET /api/v1/apps/{uuid}/deployments/{id}/stream_logs)
 func (s *DeploymentsService) StreamLogs(ctx context.Context, appUUID, deploymentID string, fn func(line string) error) error {
 	path := fmt.Sprintf("/api/v1/apps/%s/deployments/%s/stream_logs", url.PathEscape(appUUID), url.PathEscape(deploymentID))
-	req, err := s.client.newRequest(ctx, http.MethodGet, path, nil, nil)
+	return s.client.streamSSE(ctx, path, func(ev LogEvent) error { return fn(ev.Data) })
+}
+
+func (c *Client) streamSSE(ctx context.Context, path string, fn func(LogEvent) error) error {
+	req, err := c.newRequest(ctx, http.MethodGet, path, nil, nil)
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Accept", "text/event-stream")
 	req.Header.Set("Cache-Control", "no-cache")
 
-	resp, err := s.client.httpClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		if ctx.Err() != nil {
 			return ctx.Err()
@@ -83,14 +87,19 @@ func (s *DeploymentsService) StreamLogs(ctx context.Context, appUUID, deployment
 	}
 
 	reader := bufio.NewReader(resp.Body)
+	event := ""
 	for {
 		line, err := reader.ReadString('\n')
 		// Process any data received before an error (including the final
 		// unterminated line at EOF).
 		if data, ok := sseData(line); ok {
-			if fnErr := fn(data); fnErr != nil {
+			if fnErr := fn(LogEvent{Event: event, Data: data}); fnErr != nil {
 				return fnErr
 			}
+		} else if name, ok := strings.CutPrefix(strings.TrimRight(line, "\r\n"), "event:"); ok {
+			event = strings.TrimPrefix(name, " ")
+		} else if strings.TrimRight(line, "\r\n") == "" {
+			event = ""
 		}
 		if err != nil {
 			if ctx.Err() != nil {

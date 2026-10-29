@@ -222,7 +222,7 @@ func TestRequestBodyEncoding(t *testing.T) {
 			t.Fatalf("decoding request body: %v", err)
 		}
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprint(w, `{"uuid":12,"name":"demo"}`)
+		fmt.Fprint(w, `{"uuid":"proj-12","name":"demo"}`)
 	})
 	_, err := client.Projects.Create(context.Background(), &CreateProjectRequest{Name: "demo"})
 	if err != nil {

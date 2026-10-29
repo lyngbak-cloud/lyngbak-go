@@ -71,3 +71,34 @@ func (s *ProjectsService) ListApps(ctx context.Context, projectID string) ([]App
 	}
 	return out, nil
 }
+
+func (s *ProjectsService) AssignResource(ctx context.Context, projectID, resourceUUID string) (*Resource, error) {
+	body := struct {
+		ResourceID string `json:"resource_id"`
+	}{ResourceID: resourceUUID}
+	out := new(Resource)
+	path := fmt.Sprintf("/api/v1/projects/%s/resources", url.PathEscape(projectID))
+	if err := s.client.do(ctx, http.MethodPost, path, nil, body, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s *ProjectsService) UnassignResource(ctx context.Context, projectID, resourceUUID string) error {
+	path := fmt.Sprintf("/api/v1/projects/%s/resources/%s", url.PathEscape(projectID), url.PathEscape(resourceUUID))
+	return s.client.do(ctx, http.MethodDelete, path, nil, nil, nil)
+}
+
+func (s *ProjectsService) CreateRestriction(ctx context.Context, projectID string, req *CreateProjectRestrictionRequest) (*ProjectRestriction, error) {
+	out := new(ProjectRestriction)
+	path := fmt.Sprintf("/api/v1/projects/%s/restrictions", url.PathEscape(projectID))
+	if err := s.client.do(ctx, http.MethodPost, path, nil, req, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s *ProjectsService) DeleteRestriction(ctx context.Context, projectID string, id int64) error {
+	path := fmt.Sprintf("/api/v1/projects/%s/restrictions/%d", url.PathEscape(projectID), id)
+	return s.client.do(ctx, http.MethodDelete, path, nil, nil, nil)
+}

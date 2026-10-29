@@ -18,6 +18,31 @@ type sdkRoute struct {
 }
 
 var sdkRoutes = []sdkRoute{
+	{method: "PUT", path: "/api/v1/apps/{uuid}/secret_files/project_files_enabled", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Apps.SetProjectSecretFilesEnabled(ctx, "p1", true)
+		return err
+	}},
+	{method: "PUT", path: "/api/v1/apps/{uuid}/vars/project_variables_enabled", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Vars.SetProjectVariablesEnabled(ctx, "p1", true)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/apps/{uuid}/cronjobs/{id}/stream_logs", params: []string{"p1", "2"}, call: func(ctx context.Context, c *Client) error {
+		return c.Cronjobs.StreamLogs(ctx, "p1", 2, func(LogEvent) error { return nil })
+	}},
+	{method: "POST", path: "/api/v1/projects/{project_id}/resources", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Projects.AssignResource(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/projects/{project_id}/resources/{resource_id}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.Projects.UnassignResource(ctx, "p1", "p2")
+	}},
+	{method: "POST", path: "/api/v1/projects/{project_id}/restrictions", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Projects.CreateRestriction(ctx, "p1", nil)
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/projects/{project_id}/restrictions/{id}", params: []string{"p1", "2"}, call: func(ctx context.Context, c *Client) error {
+		return c.Projects.DeleteRestriction(ctx, "p1", 2)
+	}},
 	{method: "GET", path: "/api/v1/apps", params: []string{}, call: func(ctx context.Context, c *Client) error {
 		_, err := c.Apps.List(ctx)
 		return err
@@ -460,8 +485,6 @@ var sdkRoutes = []sdkRoute{
 var pendingRoutes = map[string]bool{
 	"DELETE /api/v1/apps/{uuid}/preview_environments/{id}":          true,
 	"DELETE /api/v1/apps/{uuid}/secret_files/{name}":                true,
-	"DELETE /api/v1/projects/{project_id}/resources/{resource_id}":  true,
-	"DELETE /api/v1/projects/{project_id}/restrictions/{id}":        true,
 	"DELETE /api/v1/projects/{project_id}/secret_files/{name}":      true,
 	"DELETE /api/v1/stacks/{uuid}":                                  true,
 	"DELETE /api/v1/static/{uuid}":                                  true,
@@ -474,7 +497,6 @@ var pendingRoutes = map[string]bool{
 	"DELETE /api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}":        true,
 	"DELETE /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}":              true,
 	"DELETE /api/v1/webhooks/{uuid}":                                true,
-	"GET /api/v1/apps/{uuid}/cronjobs/{id}/stream_logs":             true,
 	"GET /api/v1/apps/{uuid}/preview_environments":                  true,
 	"GET /api/v1/apps/{uuid}/preview_environments/config":           true,
 	"GET /api/v1/apps/{uuid}/preview_environments/{id}":             true,
@@ -514,8 +536,6 @@ var pendingRoutes = map[string]bool{
 	"GET /api/v1/webhooks/{uuid}/deliveries":                        true,
 	"POST /api/v1/apps/{uuid}/preview_environments/{id}/redeploy":   true,
 	"POST /api/v1/apps/{uuid}/secret_files":                         true,
-	"POST /api/v1/projects/{project_id}/resources":                  true,
-	"POST /api/v1/projects/{project_id}/restrictions":               true,
 	"POST /api/v1/projects/{project_id}/secret_files":               true,
 	"POST /api/v1/stacks":                                           true,
 	"POST /api/v1/stacks/analyze":                                   true,
@@ -538,9 +558,7 @@ var pendingRoutes = map[string]bool{
 	"POST /api/v1/webhooks/{uuid}/deliveries/{delivery_uuid}/retry": true,
 	"POST /api/v1/webhooks/{uuid}/test":                             true,
 	"PUT /api/v1/apps/{uuid}/preview_environments/config":           true,
-	"PUT /api/v1/apps/{uuid}/secret_files/project_files_enabled":    true,
 	"PUT /api/v1/apps/{uuid}/secret_files/{name}":                   true,
-	"PUT /api/v1/apps/{uuid}/vars/project_variables_enabled":        true,
 	"PUT /api/v1/projects/{project_id}/secret_files/{name}":         true,
 	"PUT /api/v1/stacks/{uuid}":                                     true,
 	"PUT /api/v1/stacks/{uuid}/deployment":                          true,

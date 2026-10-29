@@ -105,7 +105,7 @@ func main() {
     app, err := client.Apps.Create(ctx, &lyngbak.CreateAppRequest{
         Label:            "Demo Web",
         Name:             "demo-web",
-        ProjectID:        fmt.Sprint(project.UUID),
+        ProjectID:        project.UUID,
         ResourceID:       res.UUID,
         Builder:          "auto",
         DeploymentMethod: "container_registry",
@@ -209,8 +209,8 @@ Optional string fields use `omitempty`; an empty string is not sent.
 
 | Service | Methods |
 |---|---|
-| `client.Apps` | `List`, `Create`, `Get`, `Update`, `Delete`, `UpdateState`, `UpdateSecurity`, `Clone`, `Deploy`, `UpdateDeployment`, `Activity`, `UpdateScalingProfile`, `UpdateHealthChecks` |
-| `client.Projects` | `List`, `Create`, `Get`, `Update`, `Delete`, `ListApps` |
+| `client.Apps` | `List`, `Create`, `Get`, `Update`, `Delete`, `UpdateState`, `UpdateSecurity`, `Clone`, `Deploy`, `UpdateDeployment`, `Activity`, `UpdateScalingProfile`, `UpdateHealthChecks`, `SetProjectSecretFilesEnabled` |
+| `client.Projects` | `List`, `Create`, `Get`, `Update`, `Delete`, `ListApps`, `AssignResource`, `UnassignResource`, `CreateRestriction`, `DeleteRestriction` |
 | `client.ProjectVars` | `List`, `Create`, `Update`, `Delete` |
 | `client.Resources` | `List`, `Create`, `Get`, `Update`, `Delete`, `UpdateLabels` |
 | `client.Services` | `List`, `Create`, `Get`, `Update`, `Delete`, `UpdateState`, `MountApp`, `UnmountApp`, `RotatePassword`, `Backups`, `RestoreBackup`, `ResetDatabase`, `CreateReplica`, `PromoteReplica`, `PromoteExternalReplica` |
@@ -219,8 +219,8 @@ Optional string fields use `omitempty`; an empty string is not sent.
 | `client.Addons` | `List`, `Create`, `Get`, `Update`, `Delete`, `UpdateState`, `RotatePassword`, `Backups`, `RestoreBackup`, `ResetDatabase`, `CreateReplica`, `PromoteReplica`, `PromoteExternalReplica` |
 | `client.Deployments` | `List`, `Get`, `Logs`, `StreamLogs`, `Cancel`, `Rollback` |
 | `client.Domains` | `List`, `Create`, `Get`, `Update`, `Delete`, `Verify` |
-| `client.Vars` | `List`, `Create`, `Update`, `Delete` |
-| `client.Cronjobs` | `List`, `Create`, `Get`, `Update`, `Delete` |
+| `client.Vars` | `List`, `Create`, `Update`, `Delete`, `SetProjectVariablesEnabled` |
+| `client.Cronjobs` | `List`, `Create`, `Get`, `Update`, `Delete`, `StreamLogs` |
 | `client.Ports` | `List`, `Create`, `Get`, `Delete`, `ExposePublicly`, `MakePrivate` |
 | `client.Auth` | `SignIn`, `RefreshToken` |
 | `client.Users` | `Me` |

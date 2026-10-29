@@ -73,12 +73,12 @@ func TestAppsUpdateState(t *testing.T) {
 
 func TestProjectsList(t *testing.T) {
 	client := newTestClient(t, route(t, http.MethodGet, "/api/v1/projects", 200,
-		`[{"uuid":7,"name":"demo","description":"d"}]`))
+		`[{"uuid":"proj-7","name":"demo","description":"d"}]`))
 	projects, err := client.Projects.List(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(projects) != 1 || projects[0].UUID != 7 || projects[0].Name != "demo" {
+	if len(projects) != 1 || projects[0].UUID != "proj-7" || projects[0].Name != "demo" {
 		t.Errorf("unexpected projects: %+v", projects)
 	}
 }
@@ -278,12 +278,12 @@ func TestCronjobsGet(t *testing.T) {
 
 func TestPortsExposePublicly(t *testing.T) {
 	client := newTestClient(t, route(t, http.MethodPatch, "/api/v1/apps/app-1/ports/42/expose_publicly", 200,
-		`{"id":"42","internal_port":"8080","protocol":"tcp","public":"true","port_endpoint":{"endpoint_hostname":"p.miget.net"}}`))
+		`{"id":42,"internal_port":8080,"protocol":"tcp","public":true,"endpoint_hostname":"p.miget.net"}`))
 	p, err := client.Ports.ExposePublicly(context.Background(), "app-1", 42)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if p.Public != "true" || p.PortEndpoint == nil || p.PortEndpoint.EndpointHostname != "p.miget.net" {
+	if !p.Public || p.EndpointHostname != "p.miget.net" {
 		t.Errorf("unexpected port: %+v", p)
 	}
 }

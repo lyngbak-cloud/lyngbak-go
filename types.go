@@ -29,12 +29,12 @@ type App struct {
 	DeploymentMethod string `json:"deployment_method"`
 	// DeploymentConfig fields vary by deployment method; the spec declares
 	// a free-form object.
-	DeploymentConfig map[string]any `json:"deployment_config"`
-	Builder          string         `json:"builder"`
-	ManageDNSRecords bool           `json:"manage_dns_records"`
-	Maintenance      bool           `json:"maintenance"`
-	ServiceName      string         `json:"service_name"`
-	AllowConnections bool           `json:"allow_connections"`
+	DeploymentConfig *AppDeploymentConfigState `json:"deployment_config"`
+	Builder          string                    `json:"builder"`
+	ManageDNSRecords bool                      `json:"manage_dns_records"`
+	Maintenance      bool                      `json:"maintenance"`
+	ServiceName      string                    `json:"service_name"`
+	AllowConnections bool                      `json:"allow_connections"`
 	// Quota is the resource quota configuration; the spec declares a
 	// free-form object.
 	Quota     map[string]any `json:"quota"`
@@ -47,6 +47,89 @@ type App struct {
 	// array items as the Addon entity, but the data is cron jobs; the
 	// Cronjob type is used here.
 	Cronjobs []Cronjob `json:"cronjobs"`
+
+	HealthChecks              *AppHealthChecks   `json:"health_checks"`
+	ScalingProfile            *AppScalingProfile `json:"scaling_profile"`
+	BasicAuthEnabled          bool               `json:"basic_auth_enabled"`
+	BasicAuthUsername         *string            `json:"basic_auth_username"`
+	ProjectVariablesEnabled   bool               `json:"project_variables_enabled"`
+	ProjectSecretFilesEnabled bool               `json:"project_secret_files_enabled"`
+	RAMSize                   float64            `json:"ram_size"`
+	CPUSize                   float64            `json:"cpu_size"`
+	ResourceID                string             `json:"resource_id"`
+	VPCUUID                   *string            `json:"vpc_uuid"`
+	VPCSubnetUUID             *string            `json:"vpc_subnet_uuid"`
+	PrivateAccess             bool               `json:"private_access"`
+	InternalURL               *string            `json:"internal_url"`
+	PublicURL                 *string            `json:"public_url"`
+}
+
+type AppHealthChecks struct {
+	LivenessProbeEnabled                     *bool   `json:"liveness_probe_enabled"`
+	ReadinessProbeEnabled                    *bool   `json:"readiness_probe_enabled"`
+	StartupProbeEnabled                      *bool   `json:"startup_probe_enabled"`
+	LivenessInAppFailureNotificationEnabled  *bool   `json:"liveness_in_app_failure_notification_enabled"`
+	LivenessEmailFailureNotificationEnabled  *bool   `json:"liveness_email_failure_notification_enabled"`
+	ReadinessInAppFailureNotificationEnabled *bool   `json:"readiness_in_app_failure_notification_enabled"`
+	ReadinessEmailFailureNotificationEnabled *bool   `json:"readiness_email_failure_notification_enabled"`
+	StartupInAppFailureNotificationEnabled   *bool   `json:"startup_in_app_failure_notification_enabled"`
+	StartupEmailFailureNotificationEnabled   *bool   `json:"startup_email_failure_notification_enabled"`
+	LivenessProbePath                        *string `json:"liveness_probe_path"`
+	ReadinessProbePath                       *string `json:"readiness_probe_path"`
+	StartupProbePath                         *string `json:"startup_probe_path"`
+	LivenessProbeInitialDelaySeconds         *int    `json:"liveness_probe_initial_delay_seconds"`
+	LivenessProbeTimeoutSeconds              *int    `json:"liveness_probe_timeout_seconds"`
+	LivenessProbePeriodSeconds               *int    `json:"liveness_probe_period_seconds"`
+	LivenessProbeFailureThreshold            *int    `json:"liveness_probe_failure_threshold"`
+	ReadinessProbeInitialDelaySeconds        *int    `json:"readiness_probe_initial_delay_seconds"`
+	ReadinessProbeTimeoutSeconds             *int    `json:"readiness_probe_timeout_seconds"`
+	ReadinessProbePeriodSeconds              *int    `json:"readiness_probe_period_seconds"`
+	ReadinessProbeFailureThreshold           *int    `json:"readiness_probe_failure_threshold"`
+	StartupProbeInitialDelaySeconds          *int    `json:"startup_probe_initial_delay_seconds"`
+	StartupProbeTimeoutSeconds               *int    `json:"startup_probe_timeout_seconds"`
+	StartupProbePeriodSeconds                *int    `json:"startup_probe_period_seconds"`
+	StartupProbeFailureThreshold             *int    `json:"startup_probe_failure_threshold"`
+}
+
+type AppScalingProfile struct {
+	Replicas           int     `json:"replicas"`
+	AutoScalingEnabled bool    `json:"auto_scaling_enabled"`
+	AutoMinReplicas    *int    `json:"auto_min_replicas"`
+	AutoMaxReplicas    *int    `json:"auto_max_replicas"`
+	ScalingStartTime   *string `json:"scaling_start_time"`
+	ScalingEndTime     *string `json:"scaling_end_time"`
+	CPUThreshold       *int    `json:"cpu_threshold"`
+	MemoryThreshold    *int    `json:"memory_threshold"`
+}
+
+type AppDeploymentConfigState struct {
+	Type                string   `json:"type"`
+	Repository          *string  `json:"repository"`
+	RepositoryURL       *string  `json:"repository_url"`
+	Branch              *string  `json:"branch"`
+	AutoDeployEnabled   *bool    `json:"auto_deploy_enabled"`
+	AutoDeployBranch    *string  `json:"auto_deploy_branch"`
+	CredentialID        *string  `json:"credential_id"`
+	DockerfilePath      *string  `json:"dockerfile_path"`
+	BuildContext        *string  `json:"build_context"`
+	ProjectPath         *string  `json:"project_path"`
+	RunCommand          *string  `json:"run_command"`
+	Language            *string  `json:"language"`
+	BuildCommand        *string  `json:"build_command"`
+	PreDeployCommand    *string  `json:"pre_deploy_command"`
+	PostDeployCommand   *string  `json:"post_deploy_command"`
+	UseDHI              *bool    `json:"use_dhi"`
+	ImageURL            *string  `json:"image_url"`
+	Tag                 *string  `json:"tag"`
+	Command             []string `json:"command"`
+	Args                []string `json:"args"`
+	ParentAppID         *string  `json:"parent_app_id"`
+	ParentImageAutoSync *bool    `json:"parent_image_auto_sync"`
+	SSHKeys             []string `json:"ssh_keys"`
+	RegistryImage       *string  `json:"registry_image"`
+	RegistryHostname    *string  `json:"registry_hostname"`
+	RegistryUsername    *string  `json:"registry_username"`
+	RegistryPassword    *string  `json:"registry_password"`
 }
 
 // Resource is a Miget compute resource.
@@ -69,6 +152,16 @@ type Resource struct {
 	UpdatedAt         time.Time   `json:"updated_at"`
 	Plan              Plan        `json:"plan"`
 	Components        []Component `json:"components"`
+
+	RegionCode          string              `json:"region_code"`
+	ComponentQuantities []ComponentQuantity `json:"component_quantities"`
+	Assigned            bool                `json:"assigned"`
+	ProjectIDs          []string            `json:"project_ids"`
+}
+
+type ComponentQuantity struct {
+	CodeName string `json:"code_name"`
+	Quantity int64  `json:"quantity"`
 }
 
 // Plan is a billing plan.
@@ -77,6 +170,7 @@ type Plan struct {
 	Name        string  `json:"name"`
 	CodeName    string  `json:"code_name"`
 	Description string  `json:"description"`
+	PlanType    string  `json:"plan_type"`
 	RAMSize     float64 `json:"ram_size"`   // MiB
 	DiskSize    float64 `json:"disk_size"`  // GiB
 	CPUSize     float64 `json:"cpu_size"`   // cores
@@ -115,6 +209,23 @@ type Addon struct {
 	CreatedAt         time.Time      `json:"created_at"`
 	UpdatedAt         time.Time      `json:"updated_at"`
 	ConnectionDetails map[string]any `json:"connection_details"`
+
+	RAMSize          float64        `json:"ram_size"`
+	DiskSize         float64        `json:"disk_size"`
+	CPUSize          float64        `json:"cpu_size"`
+	ServiceID        *int64         `json:"service_id"`
+	BackupEnabled    *bool          `json:"backup_enabled"`
+	ScheduledBackup  *string        `json:"scheduled_backup"`
+	Role             *string        `json:"role"`
+	PrimaryAddonUUID *string        `json:"primary_addon_uuid"`
+	Replicas         []AddonReplica `json:"replicas"`
+}
+
+type AddonReplica struct {
+	UUID  string `json:"uuid"`
+	Name  string `json:"name"`
+	Label string `json:"label"`
+	State string `json:"state"`
 }
 
 // Activity is an audit log entry for an app.
@@ -153,6 +264,7 @@ type Domain struct {
 // Schema: Api_V1_Entities_Backup.
 type Backup struct {
 	BackupEnabled bool `json:"backup_enabled"`
+	BackupActive  bool `json:"backup_active"`
 	// Backups, ScheduledBackup and ClusterStatus are declared as free-form
 	// objects in the spec.
 	Backups         []map[string]any `json:"backups"`
@@ -172,42 +284,36 @@ type Variable struct {
 // Cronjob is a scheduled cron job attached to an app.
 // Schema: Api_V1_Entities_Cronjob.
 type Cronjob struct {
-	UUID          string    `json:"uuid"`
-	Name          string    `json:"name"`
-	ScheduleType  string    `json:"schedule_type"` // cron, interval
-	IntervalType  string    `json:"interval_type"` // every_10_minutes, hourly, daily
-	Hour          string    `json:"hour"`
-	Minute        string    `json:"minute"`
-	Command       string    `json:"command"`
-	Status        string    `json:"status"` // running, stopped
-	LastJobName   string    `json:"last_job_name"`
-	LastJobStatus string    `json:"last_job_status"`
-	LastJobRunAt  time.Time `json:"last_job_run_at"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	UUID           string    `json:"uuid"`
+	Name           string    `json:"name"`
+	ScheduleType   string    `json:"schedule_type"` // cron, interval
+	IntervalType   string    `json:"interval_type"` // every_10_minutes, hourly, daily
+	Hour           string    `json:"hour"`
+	Minute         string    `json:"minute"`
+	Command        string    `json:"command"`
+	Label          string    `json:"label"`
+	CronExpression string    `json:"cron_expression"`
+	Status         string    `json:"status"` // running, stopped
+	LastJobName    string    `json:"last_job_name"`
+	LastJobStatus  string    `json:"last_job_status"`
+	LastJobRunAt   time.Time `json:"last_job_run_at"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 // Port is an exposed application port.
 // Schema: Api_V1_Entities_Port.
-//
-// The spec declares every field of this entity (including internal_port,
-// auto_detected and public) as strings; the types below follow the spec.
 type Port struct {
-	ID             string        `json:"id"`
-	InternalPort   string        `json:"internal_port"`
-	ExternalPort   string        `json:"external_port"`
-	Protocol       string        `json:"protocol"`
-	AutoDetected   string        `json:"auto_detected"`
-	CreatedAt      string        `json:"created_at"`
-	UpdatedAt      string        `json:"updated_at"`
-	Public         string        `json:"public"`
-	PublicEndpoint string        `json:"public_endpoint"`
-	PortEndpoint   *PortEndpoint `json:"port_endpoint,omitempty"`
-}
-
-// PortEndpoint describes the public endpoint of a publicly exposed port.
-type PortEndpoint struct {
-	EndpointID            string `json:"endpoint_id"`
+	ID                    int64  `json:"id"`
+	InternalPort          int64  `json:"internal_port"`
+	ExternalPort          *int64 `json:"external_port"`
+	Protocol              string `json:"protocol"`
+	AutoDetected          bool   `json:"auto_detected"`
+	CreatedAt             string `json:"created_at"`
+	UpdatedAt             string `json:"updated_at"`
+	Public                bool   `json:"public"`
+	PublicEndpoint        string `json:"public_endpoint"`
+	EndpointID            int64  `json:"endpoint_id"`
 	EndpointHostname      string `json:"endpoint_hostname"`
 	EndpointIPv4Primary   string `json:"endpoint_ipv4_primary"`
 	EndpointIPv4Secondary string `json:"endpoint_ipv4_secondary"`
@@ -226,7 +332,10 @@ type Deployment struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	// LogsStoredAt is the zero time if logs have not been stored yet
 	// (the API returns null).
-	LogsStoredAt time.Time `json:"logs_stored_at"`
+	LogsStoredAt  time.Time `json:"logs_stored_at"`
+	Branch        *string   `json:"branch"`
+	CommitSHA     *string   `json:"commit_sha"`
+	CommitMessage *string   `json:"commit_message"`
 }
 
 // AuthTokens is the result of signing in.
@@ -267,8 +376,10 @@ type Bucket struct {
 	// Policy is the S3-compatible bucket policy as a JSON string.
 	Policy string `json:"policy"`
 	// ACL is the S3-compatible access control list.
-	ACL   string   `json:"acl"`
-	Miget Resource `json:"miget"`
+	ACL        string   `json:"acl"`
+	Miget      Resource `json:"miget"`
+	ResourceID string   `json:"resource_id"`
+	ProjectID  *string  `json:"project_id"`
 }
 
 // BucketObjectList is a page of bucket objects.
@@ -312,15 +423,21 @@ type ContainerRegistryCredential struct {
 
 // Project is a project grouping apps.
 // Schema: Api_V1_Entities_Project.
-//
-// Note: the spec declares the uuid field as an integer even though apps
-// reference projects by a string project_id; the spec type is followed here.
 type Project struct {
-	UUID        int64     `json:"uuid"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	UUID         string               `json:"uuid"`
+	Name         string               `json:"name"`
+	Description  string               `json:"description"`
+	CreatedAt    time.Time            `json:"created_at"`
+	UpdatedAt    time.Time            `json:"updated_at"`
+	Resources    []Resource           `json:"resources"`
+	Restrictions []ProjectRestriction `json:"restrictions"`
+}
+
+type ProjectRestriction struct {
+	ID          int64   `json:"id"`
+	SubjectType string  `json:"subject_type"`
+	UserUUID    *string `json:"user_uuid"`
+	RoleName    *string `json:"role_name"`
 }
 
 // Service is a standalone service (postgres, shared_storage).
@@ -333,11 +450,31 @@ type Service struct {
 	ProjectID   string `json:"project_id"`
 	ResourceID  string `json:"resource_id"`
 	// MigetID is deprecated; use ResourceID instead.
-	MigetID   string    `json:"miget_id"`
+	MigetID   *string   `json:"miget_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	// ConnectionDetails is declared as a free-form object in the spec.
 	ConnectionDetails map[string]any `json:"connection_details"`
+
+	RAMSize         float64        `json:"ram_size"`
+	DiskSize        float64        `json:"disk_size"`
+	CPUSize         float64        `json:"cpu_size"`
+	PublicAccess    *bool          `json:"public_access"`
+	Instances       *int           `json:"instances"`
+	PostgresVersion *string        `json:"postgres_version"`
+	MountPoint      *string        `json:"mount_point"`
+	Mounts          []ServiceMount `json:"mounts"`
+	BackupEnabled   *bool          `json:"backup_enabled"`
+	ScheduledBackup *string        `json:"scheduled_backup"`
+	State           string         `json:"state"`
+}
+
+type ServiceMount struct {
+	AppID      string  `json:"app_id"`
+	AddonUUID  string  `json:"addon_uuid"`
+	MountPoint string  `json:"mount_point"`
+	SubPath    *string `json:"sub_path"`
+	Label      *string `json:"label"`
 }
 
 // User is the authenticated user.
@@ -440,10 +577,13 @@ type AppDeploymentConfig struct {
 // CreateAppRequest is the body for AppsService.Create.
 // Schema: createApp.
 type CreateAppRequest struct {
-	Label      string `json:"label"`
-	Name       string `json:"name"`
-	ProjectID  string `json:"project_id"`
-	ResourceID string `json:"resource_id"`
+	PrivateAccess *bool  `json:"private_access,omitempty"`
+	VPCUUID       string `json:"vpc_uuid,omitempty"`
+	VPCSubnetUUID string `json:"vpc_subnet_uuid,omitempty"`
+	Label         string `json:"label"`
+	Name          string `json:"name"`
+	ProjectID     string `json:"project_id"`
+	ResourceID    string `json:"resource_id"`
 	// Builder is one of auto, dockerfile, custom.
 	Builder string   `json:"builder"`
 	RAMSize *float64 `json:"ram_size,omitempty"` // MiB
@@ -458,8 +598,9 @@ type CreateAppRequest struct {
 // UpdateAppRequest is the body for AppsService.Update.
 // Schema: updateApp.
 type UpdateAppRequest struct {
-	Label     string `json:"label,omitempty"`
-	ProjectID string `json:"project_id,omitempty"`
+	PrivateAccess *bool  `json:"private_access,omitempty"`
+	Label         string `json:"label,omitempty"`
+	ProjectID     string `json:"project_id,omitempty"`
 	// Builder is one of auto, dockerfile, custom.
 	Builder          string   `json:"builder,omitempty"`
 	ManageDNSRecords *bool    `json:"manage_dns_records,omitempty"`
@@ -500,6 +641,7 @@ type CloneAppRequest struct {
 	CloneSecretFiles     *bool           `json:"clone_secret_files,omitempty"`
 	CloneScalingSettings *bool           `json:"clone_scaling_settings,omitempty"`
 	CloneHealthChecks    *bool           `json:"clone_health_checks,omitempty"`
+	CloneSecurity        *bool           `json:"clone_security,omitempty"`
 	Addons               []CloneAppAddon `json:"addons,omitempty"`
 	// Cronjobs is a list of cron job UUIDs to clone.
 	Cronjobs []string `json:"cronjobs,omitempty"`
@@ -651,6 +793,7 @@ type CreateAppAddonRequest struct {
 	MountPoint string `json:"mount_point,omitempty"`
 	// StorageAccess is RWO or RWX (storage).
 	StorageAccess string `json:"storage_access,omitempty"`
+	SubPath       string `json:"sub_path,omitempty"`
 }
 
 // UpdateAppAddonRequest is the body for AddonsService.Update.
@@ -705,7 +848,6 @@ type UpdateAppVarRequest struct {
 // CreateAppCronjobRequest is the body for CronjobsService.Create.
 // Schema: createAppCronjob.
 type CreateAppCronjobRequest struct {
-	Name  string `json:"name"`
 	Label string `json:"label,omitempty"`
 	// ScheduleType is cron or interval.
 	ScheduleType string `json:"schedule_type,omitempty"`
@@ -754,12 +896,14 @@ type CreateBucketRequest struct {
 	// Visibility is public_access or private_access.
 	Visibility string   `json:"visibility,omitempty"`
 	DiskSize   *float64 `json:"disk_size,omitempty"` // GiB
+	ProjectID  string   `json:"project_id,omitempty"`
 }
 
 // UpdateBucketRequest is the body for BucketsService.Update.
 // Schema: updateBucket.
 type UpdateBucketRequest struct {
-	Label string `json:"label,omitempty"`
+	ProjectID string `json:"project_id,omitempty"`
+	Label     string `json:"label,omitempty"`
 	// Visibility is public_access or private_access.
 	Visibility string   `json:"visibility,omitempty"`
 	DiskSize   *float64 `json:"disk_size,omitempty"` // GiB
@@ -909,10 +1053,11 @@ type CreateServiceRequest struct {
 // UpdateServiceRequest is the body for ServicesService.Update.
 // Schema: updateService.
 type UpdateServiceRequest struct {
-	Label    string   `json:"label,omitempty"`
-	RAMSize  *float64 `json:"ram_size,omitempty"`  // MiB
-	DiskSize *float64 `json:"disk_size,omitempty"` // GiB
-	CPUSize  *float64 `json:"cpu_size,omitempty"`  // cores
+	ProjectID string   `json:"project_id,omitempty"`
+	Label     string   `json:"label,omitempty"`
+	RAMSize   *float64 `json:"ram_size,omitempty"`  // MiB
+	DiskSize  *float64 `json:"disk_size,omitempty"` // GiB
+	CPUSize   *float64 `json:"cpu_size,omitempty"`  // cores
 	// PublicAccess enables public internet access: "0" or "1" (postgres).
 	PublicAccess string `json:"public_access,omitempty"`
 	// BackupEnabled enables automatic backups: "0" or "1" (postgres).
@@ -932,5 +1077,16 @@ type MountAppRequest struct {
 	// MountPoint defaults to the service's mount point.
 	MountPoint string `json:"mount_point,omitempty"`
 	// Label is a human-readable label for the mounted add-on.
-	Label string `json:"label,omitempty"`
+	Label   string `json:"label,omitempty"`
+	SubPath string `json:"sub_path,omitempty"`
+}
+
+type CreateProjectRestrictionRequest struct {
+	UserEmail string `json:"user_email,omitempty"`
+	RoleName  string `json:"role_name,omitempty"`
+}
+
+type LogEvent struct {
+	Event string
+	Data  string
 }
