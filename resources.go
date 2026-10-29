@@ -2,6 +2,7 @@ package lyngbak
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -27,11 +28,11 @@ func (s *ResourcesService) List(ctx context.Context) ([]Resource, error) {
 // Create provisions a new resource.
 // Operation: createResource (POST /api/v1/resources)
 func (s *ResourcesService) Create(ctx context.Context, req *CreateResourceRequest) (*Resource, error) {
-	out := new(Resource)
-	if err := s.client.do(ctx, http.MethodPost, "/api/v1/resources", nil, req, out); err != nil {
+	var raw json.RawMessage
+	if err := s.client.do(ctx, http.MethodPost, "/api/v1/resources", nil, req, &raw); err != nil {
 		return nil, err
 	}
-	return out, nil
+	return decodeResourceOrPayment(raw)
 }
 
 // Get returns a single resource by UUID.
@@ -48,12 +49,12 @@ func (s *ResourcesService) Get(ctx context.Context, uuid string) (*Resource, err
 // Update changes a resource's plan or components.
 // Operation: updateResource (PUT /api/v1/resources/{uuid})
 func (s *ResourcesService) Update(ctx context.Context, uuid string, req *UpdateResourceRequest) (*Resource, error) {
-	out := new(Resource)
+	var raw json.RawMessage
 	path := fmt.Sprintf("/api/v1/resources/%s", url.PathEscape(uuid))
-	if err := s.client.do(ctx, http.MethodPut, path, nil, req, out); err != nil {
+	if err := s.client.do(ctx, http.MethodPut, path, nil, req, &raw); err != nil {
 		return nil, err
 	}
-	return out, nil
+	return decodeResourceOrPayment(raw)
 }
 
 // Delete deletes a resource.
