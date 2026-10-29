@@ -75,6 +75,8 @@ type Client struct {
 	GitCredentials      *GitCredentialsService
 	StaticSites         *StaticSitesService
 	PreviewEnvironments *PreviewEnvironmentsService
+	Stacks              *StacksService
+	Webhooks            *WebhooksService
 }
 
 // Option configures a Client.
@@ -150,6 +152,8 @@ func New(token string, opts ...Option) *Client {
 	c.ProjectSecretFiles = &ProjectSecretFilesService{client: c}
 	c.GitCredentials = &GitCredentialsService{client: c}
 	c.StaticSites = &StaticSitesService{client: c}
+	c.Stacks = &StacksService{client: c}
+	c.Webhooks = &WebhooksService{client: c}
 	c.PreviewEnvironments = &PreviewEnvironmentsService{client: c}
 	return c
 }

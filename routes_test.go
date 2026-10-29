@@ -18,6 +18,76 @@ type sdkRoute struct {
 }
 
 var sdkRoutes = []sdkRoute{
+	{method: "GET", path: "/api/v1/stacks", params: []string{}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Stacks.List(ctx)
+		return err
+	}},
+	{method: "POST", path: "/api/v1/stacks", params: []string{}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Stacks.Create(ctx, nil)
+		return err
+	}},
+	{method: "POST", path: "/api/v1/stacks/analyze", params: []string{}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Stacks.Analyze(ctx, nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/stacks/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Stacks.Get(ctx, "p1")
+		return err
+	}},
+	{method: "PUT", path: "/api/v1/stacks/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Stacks.Update(ctx, "p1", nil)
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/stacks/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		return c.Stacks.Delete(ctx, "p1")
+	}},
+	{method: "POST", path: "/api/v1/stacks/{uuid}/deploy", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Stacks.Deploy(ctx, "p1", nil)
+		return err
+	}},
+	{method: "PUT", path: "/api/v1/stacks/{uuid}/deployment", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Stacks.UpdateDeployment(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/stacks/{uuid}/deployments", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Stacks.ListDeployments(ctx, "p1")
+		return err
+	}},
+	{method: "GET", path: "/api/v1/stacks/{uuid}/deployments/{id}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Stacks.GetDeployment(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "GET", path: "/api/v1/webhooks", params: []string{}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Webhooks.List(ctx)
+		return err
+	}},
+	{method: "POST", path: "/api/v1/webhooks", params: []string{}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Webhooks.Create(ctx, nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/webhooks/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Webhooks.Get(ctx, "p1")
+		return err
+	}},
+	{method: "PUT", path: "/api/v1/webhooks/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Webhooks.Update(ctx, "p1", nil)
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/webhooks/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		return c.Webhooks.Delete(ctx, "p1")
+	}},
+	{method: "POST", path: "/api/v1/webhooks/{uuid}/test", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Webhooks.Test(ctx, "p1")
+		return err
+	}},
+	{method: "GET", path: "/api/v1/webhooks/{uuid}/deliveries", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Webhooks.ListDeliveries(ctx, "p1")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/webhooks/{uuid}/deliveries/{delivery_uuid}/retry", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.Webhooks.RetryDelivery(ctx, "p1", "p2")
+		return err
+	}},
 	{method: "GET", path: "/api/v1/static", params: []string{}, call: func(ctx context.Context, c *Client) error {
 		_, err := c.StaticSites.List(ctx)
 		return err
@@ -617,7 +687,6 @@ var sdkRoutes = []sdkRoute{
 }
 
 var pendingRoutes = map[string]bool{
-	"DELETE /api/v1/stacks/{uuid}":                                  true,
 	"DELETE /api/v1/vpcs/{uuid}":                                    true,
 	"DELETE /api/v1/vpcs/{uuid}/attachments/{attachment_uuid}":      true,
 	"DELETE /api/v1/vpcs/{uuid}/peer_routes/{route_uuid}":           true,
@@ -625,47 +694,30 @@ var pendingRoutes = map[string]bool{
 	"DELETE /api/v1/vpcs/{uuid}/subnets/{subnet_uuid}":              true,
 	"DELETE /api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}":        true,
 	"DELETE /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}":              true,
-	"DELETE /api/v1/webhooks/{uuid}":                                true,
-	"GET /api/v1/stacks":                                            true,
-	"GET /api/v1/stacks/{uuid}":                                     true,
-	"GET /api/v1/stacks/{uuid}/deployments":                         true,
-	"GET /api/v1/stacks/{uuid}/deployments/{id}":                    true,
-	"GET /api/v1/vpcs":                                              true,
-	"GET /api/v1/vpcs/{uuid}":                                       true,
-	"GET /api/v1/vpcs/{uuid}/attachments":                           true,
-	"GET /api/v1/vpcs/{uuid}/attachments/{attachment_uuid}":         true,
-	"GET /api/v1/vpcs/{uuid}/peer_routes":                           true,
-	"GET /api/v1/vpcs/{uuid}/peer_routes/{route_uuid}":              true,
-	"GET /api/v1/vpcs/{uuid}/site_connections":                      true,
-	"GET /api/v1/vpcs/{uuid}/site_connections/{connection_uuid}":    true,
-	"GET /api/v1/vpcs/{uuid}/subnets":                               true,
-	"GET /api/v1/vpcs/{uuid}/subnets/{subnet_uuid}":                 true,
-	"GET /api/v1/vpcs/{uuid}/vpn_gateways":                          true,
-	"GET /api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}":           true,
-	"GET /api/v1/vpcs/{uuid}/vpn_users":                             true,
-	"GET /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}":                 true,
-	"GET /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}/config":          true,
-	"GET /api/v1/webhooks":                                          true,
-	"GET /api/v1/webhooks/{uuid}":                                   true,
-	"GET /api/v1/webhooks/{uuid}/deliveries":                        true,
-	"POST /api/v1/stacks":                                           true,
-	"POST /api/v1/stacks/analyze":                                   true,
-	"POST /api/v1/stacks/{uuid}/deploy":                             true,
-	"POST /api/v1/vpcs":                                             true,
-	"POST /api/v1/vpcs/{uuid}/attachments":                          true,
-	"POST /api/v1/vpcs/{uuid}/peer_routes":                          true,
-	"POST /api/v1/vpcs/{uuid}/peer_routes/apply":                    true,
-	"POST /api/v1/vpcs/{uuid}/site_connections":                     true,
-	"POST /api/v1/vpcs/{uuid}/subnets":                              true,
-	"POST /api/v1/vpcs/{uuid}/vpn_gateways":                         true,
-	"POST /api/v1/vpcs/{uuid}/vpn_users":                            true,
-	"POST /api/v1/webhooks":                                         true,
-	"POST /api/v1/webhooks/{uuid}/deliveries/{delivery_uuid}/retry": true,
-	"POST /api/v1/webhooks/{uuid}/test":                             true,
-	"PUT /api/v1/stacks/{uuid}":                                     true,
-	"PUT /api/v1/stacks/{uuid}/deployment":                          true,
-	"PUT /api/v1/vpcs/{uuid}":                                       true,
-	"PUT /api/v1/webhooks/{uuid}":                                   true,
+	"GET /api/v1/vpcs":                                           true,
+	"GET /api/v1/vpcs/{uuid}":                                    true,
+	"GET /api/v1/vpcs/{uuid}/attachments":                        true,
+	"GET /api/v1/vpcs/{uuid}/attachments/{attachment_uuid}":      true,
+	"GET /api/v1/vpcs/{uuid}/peer_routes":                        true,
+	"GET /api/v1/vpcs/{uuid}/peer_routes/{route_uuid}":           true,
+	"GET /api/v1/vpcs/{uuid}/site_connections":                   true,
+	"GET /api/v1/vpcs/{uuid}/site_connections/{connection_uuid}": true,
+	"GET /api/v1/vpcs/{uuid}/subnets":                            true,
+	"GET /api/v1/vpcs/{uuid}/subnets/{subnet_uuid}":              true,
+	"GET /api/v1/vpcs/{uuid}/vpn_gateways":                       true,
+	"GET /api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}":        true,
+	"GET /api/v1/vpcs/{uuid}/vpn_users":                          true,
+	"GET /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}":              true,
+	"GET /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}/config":       true,
+	"POST /api/v1/vpcs":                                          true,
+	"POST /api/v1/vpcs/{uuid}/attachments":                       true,
+	"POST /api/v1/vpcs/{uuid}/peer_routes":                       true,
+	"POST /api/v1/vpcs/{uuid}/peer_routes/apply":                 true,
+	"POST /api/v1/vpcs/{uuid}/site_connections":                  true,
+	"POST /api/v1/vpcs/{uuid}/subnets":                           true,
+	"POST /api/v1/vpcs/{uuid}/vpn_gateways":                      true,
+	"POST /api/v1/vpcs/{uuid}/vpn_users":                         true,
+	"PUT /api/v1/vpcs/{uuid}":                                    true,
 }
 
 func specRouteKeys(t *testing.T) map[string]bool {
