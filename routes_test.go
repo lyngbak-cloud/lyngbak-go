@@ -684,40 +684,76 @@ var sdkRoutes = []sdkRoute{
 		_, err := c.GitCredentials.Get(ctx, "p1")
 		return err
 	}},
+	{method: "GET", path: "/api/v1/vpcs", params: []string{}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPCs.List(ctx)
+		return err
+	}},
+	{method: "POST", path: "/api/v1/vpcs", params: []string{}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPCs.Create(ctx, nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPCs.Get(ctx, "p1")
+		return err
+	}},
+	{method: "PUT", path: "/api/v1/vpcs/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPCs.Update(ctx, "p1", nil)
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/vpcs/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		return c.VPCs.Delete(ctx, "p1")
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/subnets", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPCs.ListSubnets(ctx, "p1")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/vpcs/{uuid}/subnets", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPCs.CreateSubnet(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/subnets/{subnet_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPCs.GetSubnet(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/vpcs/{uuid}/subnets/{subnet_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.VPCs.DeleteSubnet(ctx, "p1", "p2")
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/attachments", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPCs.ListAttachments(ctx, "p1")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/vpcs/{uuid}/attachments", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPCs.CreateAttachment(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/vpcs/{uuid}/attachments/{attachment_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.VPCs.GetAttachment(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/vpcs/{uuid}/attachments/{attachment_uuid}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.VPCs.DeleteAttachment(ctx, "p1", "p2")
+	}},
 }
 
 var pendingRoutes = map[string]bool{
-	"DELETE /api/v1/vpcs/{uuid}":                                    true,
-	"DELETE /api/v1/vpcs/{uuid}/attachments/{attachment_uuid}":      true,
 	"DELETE /api/v1/vpcs/{uuid}/peer_routes/{route_uuid}":           true,
 	"DELETE /api/v1/vpcs/{uuid}/site_connections/{connection_uuid}": true,
-	"DELETE /api/v1/vpcs/{uuid}/subnets/{subnet_uuid}":              true,
 	"DELETE /api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}":        true,
 	"DELETE /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}":              true,
-	"GET /api/v1/vpcs":                                           true,
-	"GET /api/v1/vpcs/{uuid}":                                    true,
-	"GET /api/v1/vpcs/{uuid}/attachments":                        true,
-	"GET /api/v1/vpcs/{uuid}/attachments/{attachment_uuid}":      true,
-	"GET /api/v1/vpcs/{uuid}/peer_routes":                        true,
-	"GET /api/v1/vpcs/{uuid}/peer_routes/{route_uuid}":           true,
-	"GET /api/v1/vpcs/{uuid}/site_connections":                   true,
-	"GET /api/v1/vpcs/{uuid}/site_connections/{connection_uuid}": true,
-	"GET /api/v1/vpcs/{uuid}/subnets":                            true,
-	"GET /api/v1/vpcs/{uuid}/subnets/{subnet_uuid}":              true,
-	"GET /api/v1/vpcs/{uuid}/vpn_gateways":                       true,
-	"GET /api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}":        true,
-	"GET /api/v1/vpcs/{uuid}/vpn_users":                          true,
-	"GET /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}":              true,
-	"GET /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}/config":       true,
-	"POST /api/v1/vpcs":                                          true,
-	"POST /api/v1/vpcs/{uuid}/attachments":                       true,
-	"POST /api/v1/vpcs/{uuid}/peer_routes":                       true,
-	"POST /api/v1/vpcs/{uuid}/peer_routes/apply":                 true,
-	"POST /api/v1/vpcs/{uuid}/site_connections":                  true,
-	"POST /api/v1/vpcs/{uuid}/subnets":                           true,
-	"POST /api/v1/vpcs/{uuid}/vpn_gateways":                      true,
-	"POST /api/v1/vpcs/{uuid}/vpn_users":                         true,
-	"PUT /api/v1/vpcs/{uuid}":                                    true,
+	"GET /api/v1/vpcs/{uuid}/peer_routes":                           true,
+	"GET /api/v1/vpcs/{uuid}/peer_routes/{route_uuid}":              true,
+	"GET /api/v1/vpcs/{uuid}/site_connections":                      true,
+	"GET /api/v1/vpcs/{uuid}/site_connections/{connection_uuid}":    true,
+	"GET /api/v1/vpcs/{uuid}/vpn_gateways":                          true,
+	"GET /api/v1/vpcs/{uuid}/vpn_gateways/{gateway_uuid}":           true,
+	"GET /api/v1/vpcs/{uuid}/vpn_users":                             true,
+	"GET /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}":                 true,
+	"GET /api/v1/vpcs/{uuid}/vpn_users/{user_uuid}/config":          true,
+	"POST /api/v1/vpcs/{uuid}/peer_routes":                          true,
+	"POST /api/v1/vpcs/{uuid}/peer_routes/apply":                    true,
+	"POST /api/v1/vpcs/{uuid}/site_connections":                     true,
+	"POST /api/v1/vpcs/{uuid}/vpn_gateways":                         true,
+	"POST /api/v1/vpcs/{uuid}/vpn_users":                            true,
 }
 
 func specRouteKeys(t *testing.T) map[string]bool {
