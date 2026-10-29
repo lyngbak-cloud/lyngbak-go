@@ -70,6 +70,9 @@ type Client struct {
 	Regions             *RegionsService             // tag: Regions
 	Components          *ComponentsService          // tag: Components
 	RegistryCredentials *RegistryCredentialsService // tag: Container Registry Credentials
+	SecretFiles         *SecretFilesService
+	ProjectSecretFiles  *ProjectSecretFilesService
+	GitCredentials      *GitCredentialsService
 }
 
 // Option configures a Client.
@@ -141,6 +144,9 @@ func New(token string, opts ...Option) *Client {
 	c.Regions = &RegionsService{client: c}
 	c.Components = &ComponentsService{client: c}
 	c.RegistryCredentials = &RegistryCredentialsService{client: c}
+	c.SecretFiles = &SecretFilesService{client: c}
+	c.ProjectSecretFiles = &ProjectSecretFilesService{client: c}
+	c.GitCredentials = &GitCredentialsService{client: c}
 	return c
 }
 

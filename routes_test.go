@@ -480,12 +480,56 @@ var sdkRoutes = []sdkRoute{
 		_, err := c.SSHKeys.Get(ctx, 1)
 		return err
 	}},
+	{method: "GET", path: "/api/v1/apps/{uuid}/secret_files", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.SecretFiles.List(ctx, "p1")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/apps/{uuid}/secret_files", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.SecretFiles.Create(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/apps/{uuid}/secret_files/{name}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.SecretFiles.Get(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "PUT", path: "/api/v1/apps/{uuid}/secret_files/{name}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.SecretFiles.Update(ctx, "p1", "p2", nil)
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/apps/{uuid}/secret_files/{name}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.SecretFiles.Delete(ctx, "p1", "p2")
+	}},
+	{method: "GET", path: "/api/v1/projects/{project_id}/secret_files", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.ProjectSecretFiles.List(ctx, "p1")
+		return err
+	}},
+	{method: "POST", path: "/api/v1/projects/{project_id}/secret_files", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.ProjectSecretFiles.Create(ctx, "p1", nil)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/projects/{project_id}/secret_files/{name}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.ProjectSecretFiles.Get(ctx, "p1", "p2")
+		return err
+	}},
+	{method: "PUT", path: "/api/v1/projects/{project_id}/secret_files/{name}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.ProjectSecretFiles.Update(ctx, "p1", "p2", nil)
+		return err
+	}},
+	{method: "DELETE", path: "/api/v1/projects/{project_id}/secret_files/{name}", params: []string{"p1", "p2"}, call: func(ctx context.Context, c *Client) error {
+		return c.ProjectSecretFiles.Delete(ctx, "p1", "p2")
+	}},
+	{method: "GET", path: "/api/v1/git_credentials", params: []string{}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.GitCredentials.List(ctx)
+		return err
+	}},
+	{method: "GET", path: "/api/v1/git_credentials/{uuid}", params: []string{"p1"}, call: func(ctx context.Context, c *Client) error {
+		_, err := c.GitCredentials.Get(ctx, "p1")
+		return err
+	}},
 }
 
 var pendingRoutes = map[string]bool{
 	"DELETE /api/v1/apps/{uuid}/preview_environments/{id}":          true,
-	"DELETE /api/v1/apps/{uuid}/secret_files/{name}":                true,
-	"DELETE /api/v1/projects/{project_id}/secret_files/{name}":      true,
 	"DELETE /api/v1/stacks/{uuid}":                                  true,
 	"DELETE /api/v1/static/{uuid}":                                  true,
 	"DELETE /api/v1/static/{uuid}/domains/{domain_uuid}":            true,
@@ -500,12 +544,6 @@ var pendingRoutes = map[string]bool{
 	"GET /api/v1/apps/{uuid}/preview_environments":                  true,
 	"GET /api/v1/apps/{uuid}/preview_environments/config":           true,
 	"GET /api/v1/apps/{uuid}/preview_environments/{id}":             true,
-	"GET /api/v1/apps/{uuid}/secret_files":                          true,
-	"GET /api/v1/apps/{uuid}/secret_files/{name}":                   true,
-	"GET /api/v1/git_credentials":                                   true,
-	"GET /api/v1/git_credentials/{uuid}":                            true,
-	"GET /api/v1/projects/{project_id}/secret_files":                true,
-	"GET /api/v1/projects/{project_id}/secret_files/{name}":         true,
 	"GET /api/v1/stacks":                                            true,
 	"GET /api/v1/stacks/{uuid}":                                     true,
 	"GET /api/v1/stacks/{uuid}/deployments":                         true,
@@ -535,8 +573,6 @@ var pendingRoutes = map[string]bool{
 	"GET /api/v1/webhooks/{uuid}":                                   true,
 	"GET /api/v1/webhooks/{uuid}/deliveries":                        true,
 	"POST /api/v1/apps/{uuid}/preview_environments/{id}/redeploy":   true,
-	"POST /api/v1/apps/{uuid}/secret_files":                         true,
-	"POST /api/v1/projects/{project_id}/secret_files":               true,
 	"POST /api/v1/stacks":                                           true,
 	"POST /api/v1/stacks/analyze":                                   true,
 	"POST /api/v1/stacks/{uuid}/deploy":                             true,
@@ -558,8 +594,6 @@ var pendingRoutes = map[string]bool{
 	"POST /api/v1/webhooks/{uuid}/deliveries/{delivery_uuid}/retry": true,
 	"POST /api/v1/webhooks/{uuid}/test":                             true,
 	"PUT /api/v1/apps/{uuid}/preview_environments/config":           true,
-	"PUT /api/v1/apps/{uuid}/secret_files/{name}":                   true,
-	"PUT /api/v1/projects/{project_id}/secret_files/{name}":         true,
 	"PUT /api/v1/stacks/{uuid}":                                     true,
 	"PUT /api/v1/stacks/{uuid}/deployment":                          true,
 	"PUT /api/v1/static/{uuid}":                                     true,
