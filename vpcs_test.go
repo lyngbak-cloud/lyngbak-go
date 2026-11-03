@@ -82,6 +82,35 @@ func TestVPCAttachmentNullableFields(t *testing.T) {
 	}
 }
 
+func TestVPCAttachmentDecodesStaticAddresses(t *testing.T) {
+	client := newTestClient(t, route(t, http.MethodGet, "/api/v1/vpcs/v-1/attachments/at-1", 200,
+		`{"uuid":"at-1","status":"active","attachable_type":"App","static_ip":true,"address_v4":"10.0.1.254","address_v6":"fd00:1::fffe"}`))
+	at, err := client.VPCs.GetAttachment(context.Background(), "v-1", "at-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !at.StaticIP || at.AddressV4 == nil || *at.AddressV4 != "10.0.1.254" || at.AddressV6 == nil || *at.AddressV6 != "fd00:1::fffe" {
+		t.Errorf("unexpected attachment: %+v", at)
+	}
+}
+
+func TestVPCAttachmentDynamicAddresses(t *testing.T) {
+	client := newTestClient(t, route(t, http.MethodGet, "/api/v1/vpcs/v-1/attachments", 200,
+		`[{"uuid":"at-1","static_ip":false,"address_v4":null,"address_v6":null},{"uuid":"at-2"},{"uuid":"at-3","static_ip":true,"address_v4":"10.0.1.254","address_v6":null}]`))
+	list, err := client.VPCs.ListAttachments(context.Background(), "v-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, at := range list[:2] {
+		if at.StaticIP || at.AddressV4 != nil || at.AddressV6 != nil {
+			t.Errorf("unexpected dynamic attachment: %+v", at)
+		}
+	}
+	if !list[2].StaticIP || list[2].AddressV4 == nil || *list[2].AddressV4 != "10.0.1.254" || list[2].AddressV6 != nil {
+		t.Errorf("unexpected static attachment: %+v", list[2])
+	}
+}
+
 func TestVPCRequestBodies(t *testing.T) {
 	var got map[string]any
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
@@ -116,5 +145,17 @@ func TestVPCRequestBodies(t *testing.T) {
 	}
 	if len(got) != 3 || got["subnet_uuid"] != "s-1" || got["attachable_type"] != "App" || got["attachable_uuid"] != "a-1" {
 		t.Errorf("attachment body = %v", got)
+	}
+	if _, err := client.VPCs.CreateAttachment(ctx, "v-1", &CreateVPCAttachmentRequest{SubnetUUID: "s-1", AttachableType: "App", AttachableUUID: "a-1", StaticIP: Ptr(true)}); err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 4 || got["static_ip"] != true {
+		t.Errorf("static attachment body = %v", got)
+	}
+	if _, err := client.VPCs.CreateAttachment(ctx, "v-1", &CreateVPCAttachmentRequest{SubnetUUID: "s-1", AttachableType: "App", AttachableUUID: "a-1", StaticIP: Ptr(false)}); err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 4 || got["static_ip"] != false {
+		t.Errorf("explicit dynamic attachment body = %v", got)
 	}
 }

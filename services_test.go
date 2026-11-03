@@ -50,6 +50,32 @@ func TestAppsCreate(t *testing.T) {
 	}
 }
 
+func TestAppsCreateVPCStaticIP(t *testing.T) {
+	var body map[string]any
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		body = nil
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatal(err)
+		}
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, `{"uuid":"app-1"}`)
+	})
+	req := &CreateAppRequest{Label: "Web", Name: "web", ProjectID: "proj-1", ResourceID: "res-1", Builder: "auto", VPCSubnetUUID: "s-1"}
+	if _, err := client.Apps.Create(context.Background(), req); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := body["vpc_static_ip"]; ok || body["vpc_subnet_uuid"] != "s-1" {
+		t.Errorf("default body = %v", body)
+	}
+	req.VPCStaticIP = Ptr(true)
+	if _, err := client.Apps.Create(context.Background(), req); err != nil {
+		t.Fatal(err)
+	}
+	if body["vpc_static_ip"] != true || body["vpc_subnet_uuid"] != "s-1" {
+		t.Errorf("static body = %v", body)
+	}
+}
+
 func TestAppsUpdateState(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPatch || r.URL.Path != "/api/v1/apps/app-1/state" {

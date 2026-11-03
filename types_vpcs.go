@@ -41,6 +41,9 @@ type VPCAttachment struct {
 	SubnetUUID     *string   `json:"subnet_uuid"`
 	SubnetName     *string   `json:"subnet_name"`
 	FQDN           *string   `json:"fqdn"`
+	StaticIP       bool      `json:"static_ip"`
+	AddressV4      *string   `json:"address_v4"`
+	AddressV6      *string   `json:"address_v6"`
 	CreatedAt      time.Time `json:"created_at"`
 }
 
@@ -68,4 +71,5 @@ type CreateVPCAttachmentRequest struct {
 	SubnetUUID     string `json:"subnet_uuid"`
 	AttachableType string `json:"attachable_type"`
 	AttachableUUID string `json:"attachable_uuid"`
+	StaticIP       *bool  `json:"static_ip,omitempty"`
 }

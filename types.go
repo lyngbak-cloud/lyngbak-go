@@ -603,6 +603,7 @@ type CreateAppRequest struct {
 	PrivateAccess *bool  `json:"private_access,omitempty"`
 	VPCUUID       string `json:"vpc_uuid,omitempty"`
 	VPCSubnetUUID string `json:"vpc_subnet_uuid,omitempty"`
+	VPCStaticIP   *bool  `json:"vpc_static_ip,omitempty"`
 	Label         string `json:"label"`
 	Name          string `json:"name"`
 	ProjectID     string `json:"project_id"`
